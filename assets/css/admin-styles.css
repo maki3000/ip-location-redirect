@@ -1,0 +1,109 @@
+/* Apply a border-radius of 2px to all form elements */
+.form-group, .form-check, .btn {
+    border-radius: 2px;
+}
+
+/* Add spacing between form groups for better overview */
+.form-group {
+    margin-bottom: 15px;
+}
+
+.form-check {
+    align-items: center;
+    display: flex;
+}
+
+/* Style checkbox and radio labels to be on the right side of the input */
+.form-check label,
+.form-group label {
+    display: block;
+    font-weight: bold;
+    margin-bottom: 2px;
+    padding-left: 0;
+    padding-right: 15px;
+}
+.form-check .form-check-label {
+    display: inline;
+    font-weight: normal;
+}
+.form-group .form-radio-label {
+    font-weight: normal;
+}
+
+.input-required {
+    color: red;
+    display: inline-block;
+    font-size: 12px;
+    font-weight: normal;
+}
+
+/* Style radio buttons to be displayed below each other */
+.form-check input[type="radio"] {
+    display: inline-block;
+}
+
+.form-radio-option {
+    align-items: center;
+    display: flex;
+    margin-bottom: 5px;
+}
+
+/* Style text fields and textareas to have a minimum width of 40% */
+.form-group input[type="text"],
+.form-group select,
+.form-group textarea {
+    width: 60%;
+    box-sizing: border-box;
+}
+
+.add-repeater,
+.remove-repeater,
+.media-upload-button {
+    display: block;
+    background-color: #cccccc;
+    border: 1px solid #666;
+    border-radius: 2px;
+    margin-top: 6px;
+    padding: 2px 12px;
+}
+.add-repeater:hover,
+.remove-repeater:hover,
+.media-upload-button:hover {
+    background-color: #ffffff;
+    cursor: pointer;
+}
+
+/* Style the repeater container and its children */
+.repeater {
+    border: 1px solid #ccc;
+    padding: 10px;
+    margin-bottom: 10px;
+}
+
+.repeater label {
+    display: block;
+    margin-bottom: 5px;
+    color: #333; /* Dark grey color for comments */
+}
+
+.form-repeater-block {
+    margin-bottom: 8px;
+}
+
+/* Style the add/remove buttons */
+.add-repeater, .remove-repeater {
+    margin-top: 10px;
+}
+
+/* Style the default_redirect_option select */
+#redirection-default select {
+    width: 100%;
+    box-sizing: border-box;
+}
+
+/* Style form group comments */
+.form-group small {
+    display: block;
+    margin-top: 2px;
+    color: #666; /* Dark grey color for comments */
+}
