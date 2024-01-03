@@ -11,6 +11,7 @@ choose countries and redirect depending on their IP address
 - I think settings the IDs and the FOR attributes for the repeater action radios does not work on new/delete repeater item 
 
 ## TODOs
+- make replacing text content placeholder fail safe
 - ev. put ajax endpoint process_location_url_change() into class ipLocationRedirect
 - add more IP APIs options
 - add sort to redirect repeater
