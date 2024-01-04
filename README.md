@@ -1,7 +1,10 @@
-# Wordpress - IP location redirect
+# WordPress - IP location redirect
 
 ## description
 choose countries and redirect depending on their IP address
+
+## setup
+this plugin is intended to work on a WordPress multisite with the same data on each site added to the plugin. the plugin may work in a different setup, but untested
 
 ## testing
 - only tested with Wordpress 6.4.2
@@ -11,6 +14,8 @@ choose countries and redirect depending on their IP address
 - I think settings the IDs and the FOR attributes for the repeater action radios does not work on new/delete repeater item 
 
 ## TODOs
+- add checkboxes for showing popup and footer info
+- add checkbox for removing url parameters
 - make replacing text content placeholder fail safe
 - ev. put ajax endpoint process_location_url_change() into class ipLocationRedirect
 - add more IP APIs options
