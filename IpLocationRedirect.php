@@ -619,7 +619,7 @@ class IpLocationRedirect {
         $redirectTo = $this->addProtocol($redirectTo);
 
         if (strlen($redirectTo) > 0) {
-            wp_redirect($redirectTo);
+            wp_redirect($redirectTo, 307, 'IP location redirect');
             die;
         }
     }
@@ -642,7 +642,7 @@ class IpLocationRedirect {
             $redirectTo = $redirectTo . '&ip_location_redirect_failed=' . urlencode(1);
         }
 
-        wp_redirect($redirectTo);
+        wp_redirect($redirectTo, 307, 'IP location redirect');
         die;
     }
 
