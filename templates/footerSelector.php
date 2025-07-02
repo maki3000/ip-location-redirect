@@ -1,16 +1,16 @@
 <div class="footer-selector-wrapper">
 
-    <div class="footer-overlay"></div>
-
-    {{ loaderImage }}
-
     <div class="container">
-
         <div class="footer-selector-content">
-            <p class="footer-selector-info">{{ redirect_back_choices }}</p>
-            <ul>{{ redirectList }}</ul>
+            <?php if($redirectBackMarkup): ?>
+                <div class="footer-selector-info">
+                    <?= wp_kses_post($redirectBackMarkup); ?>
+                </div>
+            <?php endif; ?>
+            <ul>
+                <?= $redirectListMarkup; ?>
+            </ul>
         </div>
-
     </div>
 
 </div>

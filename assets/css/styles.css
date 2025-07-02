@@ -72,6 +72,12 @@
 }
 .popup-text-content ul li {
     font-size: 22px;
+    margin-bottom: 6px;
+}
+.popup-text-content ul li a {
+    font-size: 22px;
+    min-width: unset;
+    padding: 0;
 }
 
 .closer {
@@ -84,9 +90,21 @@
     padding: 8px;
 }
 
+.popup-text-goto-link-choose.popup-close {
+    font-size: 22px;
+    min-width: unset;
+    padding: 0;
+}
+
 /* footer selector */
 .footer-selector-wrapper {
     width: 100%;
+}
+
+.footer-selector-wrapper .footer-selector-content ul li a {
+    font-size: 16px;
+    min-width: unset;
+    padding: 0;
 }
 
 /* loader */
