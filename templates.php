@@ -23,15 +23,18 @@ class IpLocationRedirectTemplates {
 
     private function get_template_data($settings) {
         $currentUrl = $this->get_domain_and_tld();
+        $currentShopLabel = $settings['current_shop_label'];
 
         $redirectListMarkup = '';
         if (isset($settings['redirects']) && count($settings['redirects'])) {
             foreach ($settings['redirects'] as $key => $redirect) {
                 $redirectUrl = str_replace(array('http://', 'https://'), '', $redirect['redirect_url']);
+                $before = $redirect['redirect_message_before'];
+                $after = $redirect['redirect_message_after'];
                 if ($redirectUrl === $currentUrl) {
-                    $redirectListMarkup .= '<li>Im Shop <a href="' . $redirect['redirect_url'] . '" class="popup-text-goto-link popup-close">' . $redirectUrl . '</a> einkaufen (aktuell)</li>';
+                    $redirectListMarkup .= '<li>' . esc_html($before) . ' <a href="' . $redirect['redirect_url'] . '" class="popup-text-goto-link popup-close">' . $redirectUrl . '</a> ' . esc_html($after) . ' ' . $currentShopLabel .'</li>';
                 } else {
-                    $redirectListMarkup .= '<li>Im Shop <a href="' . $redirect['redirect_url'] . '?redirect=other&redirect_to=' . $redirectUrl . '" class="popup-text-goto-link">' . $redirectUrl . '</a> einkaufen</li>';
+                    $redirectListMarkup .= '<li>' . esc_html($before) . ' <a href="' . $redirect['redirect_url'] . '?redirect=other&redirect_to=' . $redirectUrl . '" class="popup-text-goto-link">' . $redirectUrl . '</a> ' . esc_html($after) . '</li>';
                 }
             }
         }
@@ -41,15 +44,18 @@ class IpLocationRedirectTemplates {
     
     private function get_choose_template_data($settings) {
         $currentUrl = $this->get_domain_and_tld();
+        $currentShopLabel = $settings['current_shop_label'];
         $redirectListMarkup = '';
 
         if (isset($settings['redirects']) && count($settings['redirects'])) {
             foreach ($settings['redirects'] as $key => $redirect) {
                 $redirectUrl = str_replace(array('http://', 'https://'), '', $redirect['redirect_url']);
+                $before = $redirect['redirect_message_before'];
+                $after = $redirect['redirect_message_after'];
                 if ($redirectUrl === $currentUrl) {
-                    $redirectListMarkup .= '<li>Im Shop <a href="' . $redirect['redirect_url'] . '" class="popup-text-goto-link-choose popup-close">' . $redirectUrl . '</a> einkaufen (aktuell)</li>';
+                    $redirectListMarkup .= '<li>' . esc_html($before) . ' <a href="' . $redirect['redirect_url'] . '" class="popup-text-goto-link-choose popup-close">' . $redirectUrl . '</a> ' . esc_html($after) . ' ' . $currentShopLabel . '</li>';
                 } else {
-                    $redirectListMarkup .= '<li>Im Shop <a href="' . $redirect['redirect_url'] . '?redirect=chosen" class="popup-text-goto-link-choose">' . $redirectUrl . '</a> einkaufen</li>';
+                    $redirectListMarkup .= '<li>' . esc_html($before) . ' <a href="' . $redirect['redirect_url'] . '?redirect=chosen" class="popup-text-goto-link-choose">' . $redirectUrl . '</a> ' . esc_html($after) . '</li>';
                 }
             }
         }

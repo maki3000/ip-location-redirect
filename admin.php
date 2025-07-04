@@ -90,36 +90,58 @@ class IpLocationRedirectAdmin {
             $redirect_actions = isset($_POST['country']) ? $_POST['country'] : array();
             $ip_actions = isset($_POST['ip_action']) ? $_POST['ip_action'] : array();
             $redirect_urls = isset($_POST['redirect_url']) ? $_POST['redirect_url'] : array();
-        
+            $redirect_message_befores = isset($_POST['redirect_message_before']) ? $_POST['redirect_message_before'] : array();
+            $redirect_message_afters = isset($_POST['redirect_message_after']) ? $_POST['redirect_message_after'] : array();
+
+            // Save current shop label
+            $saved_values['current_shop_label'] = isset($_POST['current_shop_label']) ? sanitize_text_field($_POST['current_shop_label']) : '';
+            if (empty($saved_values['current_shop_label'])) {
+                $errors[] = 'Current shop label is required.';
+            }
+
             $redirect_data = array();
             foreach ($redirect_actions as $index => $country) {
                 $country = sanitize_text_field($country);
                 $ip_action = sanitize_text_field($ip_actions[$index]);
                 $redirect_url = sanitize_text_field($redirect_urls[$index]);
-        
+                $redirect_message_before = isset($redirect_message_befores[$index]) ? sanitize_text_field($redirect_message_befores[$index]) : '';
+                $redirect_message_after = isset($redirect_message_afters[$index]) ? sanitize_text_field($redirect_message_afters[$index]) : '';
+
                 // Validate country
                 if (empty($country)) {
                     $errors[] = 'Country in repeater is required.';
                 }
-        
+
                 // Validate ip_action
                 if (empty($ip_action)) {
                     $errors[] = 'IP Action in repeater is required.';
                 } elseif (!in_array($ip_action, array('from_country', 'not_from_country'))) {
                     $errors[] = 'Invalid IP Action in repeater.';
                 }
-        
+
                 // Validate redirect_url
                 if (empty($redirect_url)) {
                     $errors[] = 'Redirect URL in repeater is required.';
                 } elseif (!filter_var($redirect_url, FILTER_VALIDATE_URL)) {
                     $errors[] = 'Invalid Redirect URL in repeater.';
                 }
-        
+
+                // Validate redirect_message_before
+                if (empty($redirect_message_before)) {
+                    $errors[] = 'Redirect message (before link) in repeater is required.';
+                }
+
+                // Validate redirect_message_after
+                if (empty($redirect_message_after)) {
+                    $errors[] = 'Redirect message (after link) in repeater is required.';
+                }
+
                 $redirect_data[] = array(
                     'country' => $country,
                     'ip_action' => $ip_action,
                     'redirect_url' => $redirect_url,
+                    'redirect_message_before' => $redirect_message_before,
+                    'redirect_message_after' => $redirect_message_after,
                 );
             }
         
@@ -188,6 +210,7 @@ class IpLocationRedirectAdmin {
             'redirection_choose_info',
             'show_footer_message',
             'redirection_footer_message',
+            'current_shop_label',
         );
     
         foreach ($keys as $key) {
@@ -244,50 +267,10 @@ class IpLocationRedirectAdmin {
             </div>
         </div>
 
-        <h3>
-            Use given redirect options content
-        </h3>
-    
         <div class="form-group">
-            <label for="redirection_title">Redirection Title <span class="input-required">(required)</span></label>
-            <input type="text" class="form-control" id="redirection_title" name="redirection_title" required value="<?php echo esc_attr($values['redirection_title']); ?>">
-            <small class="form-text text-muted">The value {{ shopUrl }} will be replaced with the URL the user was redirected from.</small>
-        </div>
-    
-        <div class="form-group">
-            <label for="redirection_text">Redirection Text <span class="input-required">(required)</span></label>
-            <?php
-                wp_editor(
-                    $values['redirection_text'],
-                    'redirection_text',
-                    array(
-                        'textarea_name' => 'redirection_text',
-                        'textarea_rows' => 8,
-                        'media_buttons' => false,
-                        'tinymce'       => true,
-                        'quicktags'     => true,
-                    )
-                );
-            ?>
-            <small class="form-text text-muted">The value {{ shopUrl }} will be replaced with the URL the user was redirected from.</small>
-        </div>
-    
-        <div class="form-group">
-            <label for="redirection_info">Redirection Info</label>
-            <?php
-                wp_editor(
-                    $values['redirection_info'],
-                    'redirection_info',
-                    array(
-                        'textarea_name' => 'redirection_info',
-                        'textarea_rows' => 8,
-                        'media_buttons' => false,
-                        'tinymce'       => true,
-                        'quicktags'     => true,
-                    )
-                );
-            ?>
-            <small class="form-text text-muted">This text will be displayed under the popup window text.</small>
+            <label for="current_shop_label">Current shop label <span class="input-required">(required)</span></label>
+            <input type="text" class="form-control" id="current_shop_label" name="current_shop_label" value="<?php echo isset($values['current_shop_label']) ? esc_attr($values['current_shop_label']) : ''; ?>" required>
+            <small class="form-text text-muted">This text will be shown after the current shop link in the popup, e.g. <b>(current)</b> or <b>(aktuell)</b>.</small>
         </div>
     
         <div id="redirection-repeater" class="form-group">
@@ -295,99 +278,16 @@ class IpLocationRedirectAdmin {
     
             <!-- TODO: add sort -->
             <div class="repeaters">
-
-                <?php if (empty($values['redirects'])) : ?>
-                    <div class="form-group repeater" data-index="0">
-
-                        <label for="country">Country <span class="input-required">(required)</span></label>
-
-                        <div class="form-repeater-block">
-                            <select class="form-control" id="country" name="country[0]" required>
-                                <option value="" disabled selected>Please select a country</option>
-                                <?php
-                                    // Include the countries list
-                                    include plugin_dir_path(__FILE__) . 'templates/countriesList.php';
-                                    // Output the options
-                                    foreach ($countries as $code => $name) {
-                                        echo '<option value="' . esc_attr($code) . '">' . esc_html($name) . '</option>';
-                                    }
-                                ?>
-                            </select>
-                        </div>
-
-                        <div class="form-repeater-block">
-                            <div class="form-radio">
-                                <label>IP Action <span class="input-required">(required)</span></label>
-
-                                <div class="form-radio-option">
-                                    <input type="radio" class="form-check-input ip_action_from_country" id="ip_action_from_country__0" name="ip_action[0]" value="from_country" checked>
-                                    <label class="form-radio-label ip_action_from_country-label" for="ip_action_from_country__0">IP is from country</label>
-                                </div>
-
-                                <div class="form-radio-option">
-                                    <input type="radio" class="form-check-input ip_action_not_from_country" id="ip_action_not_from_country__0" name="ip_action[0]" value="not_from_country">
-                                    <label class="form-radio-label ip_action_not_from_country-label" for="ip_action_not_from_country__0">IP is NOT from country</label>
-                                </div>
-
-                            </div>
-                        </div>
-
-                        <div class="form-repeater-block">
-                            <label for="redirect_url">Redirect to URL <span class="input-required">(required)</span></label>
-                            <input type="text" class="form-control" id="redirect_url" name="redirect_url[0]">
-                        </div>
-
-                        <button class="btn btn-danger remove-repeater" type="button">Remove</button>
-                    </div>
-                <?php else : ?>
-                    <!-- Show repeaters with values if $values['redirects'] is not empty -->
-                    <!-- TODO: use template for repeater item -->
-                    <?php foreach ($values['redirects'] as $index => $redirect) : ?>
-                        <div class="form-group repeater" data-index="<?php echo esc_attr($index); ?>">
-
-                            <div class="form-repeater-block">
-                                <label for="country">Country <span class="input-required">(required)</span></label>
-                                <select class="form-control" id="country" name="country[<?php echo esc_attr($index); ?>]" required>
-                                    <option value="" disabled selected>Please select a country</option>
-                                    <?php
-                                        // Include the countries list
-                                        include plugin_dir_path(__FILE__) . 'templates/countriesList.php';
-                                        // Output the options
-                                        foreach ($countries as $code => $name) {
-                                            $selected = ($redirect['country'] === $code) ? 'selected' : '';
-                                            echo '<option value="' . esc_attr($code) . '" ' . $selected . '>' . esc_html($name) . '</option>';
-                                        }
-                                    ?>
-                                </select>
-                            </div>
-
-                            <div class="form-repeater-block">
-                                <div class="form-radio">
-                                    <label>IP Action <span class="input-required">(required)</span></label>
-
-                                    <div class="form-radio-option">
-                                        <input type="radio" class="form-check-input ip_action_from_country" id="ip_action_from_country__<?php echo esc_attr($index); ?>" name="ip_action[<?php echo esc_attr($index); ?>]" value="from_country" <?php checked($redirect['ip_action'], 'from_country'); ?>>
-                                        <label class="form-radio-label ip_action_from_country-label" for="ip_action_from_country__<?php echo esc_attr($index); ?>">IP is from country</label>
-                                    </div>
-
-                                    <div class="form-radio-option">
-                                        <input type="radio" class="form-check-input ip_action_not_from_country" id="ip_action_not_from_country__<?php echo esc_attr($index); ?>" name="ip_action[<?php echo esc_attr($index); ?>]" value="not_from_country" <?php checked($redirect['ip_action'], 'not_from_country'); ?>>
-                                        <label class="form-radio-label ip_action_not_from_country-label" for="ip_action_not_from_country__<?php echo esc_attr($index); ?>">IP is NOT from country</label>
-                                    </div>
-
-                                </div>
-                            </div>
-
-                            <div class="form-repeater-block">
-                                <label for="redirect_url">Redirect to URL <span class="input-required">(required)</span></label>
-                                <input type="text" class="form-control" id="redirect_url" name="redirect_url[<?php echo esc_attr($index); ?>]" value="<?php echo esc_attr($redirect['redirect_url']); ?>">
-                            </div>
-
-                            <button class="btn btn-danger remove-repeater" type="button">Remove</button>
-                        </div>
-                    <?php endforeach; ?>
-                <?php endif; ?>
-
+                <?php
+                if (empty($values['redirects'])) {
+                    $index = 0;
+                    include plugin_dir_path(__FILE__) . 'templates/adminRedirectRepeater.php';
+                } else {
+                    foreach ($values['redirects'] as $index => $redirect) {
+                        include plugin_dir_path(__FILE__) . 'templates/adminRedirectRepeater.php';
+                    }
+                }
+                ?>
             </div>
     
             <small class="form-text text-muted">The first redirect that fulfills the setting will be executed.</small>
@@ -395,35 +295,83 @@ class IpLocationRedirectAdmin {
     
         </div>
 
-        <h3>
-            Show redirect options content
-        </h3>
+        <fieldset class="redirect-automatic-location">
 
-        <div class="form-group">
-            <label for="redirection_choose_title">Choose Redirection Title <span class="input-required">(required)</span></label>
-            <input type="text" class="form-control" id="redirection_choose_title" name="redirection_choose_title" required value="<?php echo esc_attr($values['redirection_choose_title']); ?>">
-        </div>
+            <legend>Redirect information (automatic redirect)</legend>
+            <p class="form-text text-muted">These options will be used for the redirection popup, where the user is redirected automatically.</p>
+        
+            <div class="form-group">
+                <label for="redirection_title">Redirection Title <span class="input-required">(required)</span></label>
+                <input type="text" class="form-control" id="redirection_title" name="redirection_title" required value="<?php echo esc_attr($values['redirection_title']); ?>">
+                <small class="form-text text-muted">The value {{ shopUrl }} will be replaced with the URL the user was redirected from.</small>
+            </div>
+        
+            <div class="form-group">
+                <label for="redirection_text">Redirection Text <span class="input-required">(required)</span></label>
+                <?php
+                    wp_editor(
+                        $values['redirection_text'],
+                        'redirection_text',
+                        array(
+                            'textarea_name' => 'redirection_text',
+                            'textarea_rows' => 8,
+                            'media_buttons' => false,
+                            'tinymce'       => true,
+                            'quicktags'     => true,
+                        )
+                    );
+                ?>
+                <small class="form-text text-muted">The value {{ shopUrl }} will be replaced with the URL the user was redirected from.</small>
+            </div>
     
-        <div class="form-group">
-            <label for="redirection_choose_info">Choose Redirection Text <span class="input-required">(required)</span></label>
-            <?php
-                wp_editor(
-                    $values['redirection_choose_info'],
-                    'redirection_choose_info',
-                    array(
-                        'textarea_name' => 'redirection_choose_info',
-                        'textarea_rows' => 8,
-                        'media_buttons' => false,
-                        'tinymce'       => true,
-                        'quicktags'     => true,
-                    )
-                );
-            ?>
-        </div>
+            <div class="form-group">
+                <label for="redirection_info">Redirection Info</label>
+                <?php
+                    wp_editor(
+                        $values['redirection_info'],
+                        'redirection_info',
+                        array(
+                            'textarea_name' => 'redirection_info',
+                            'textarea_rows' => 8,
+                            'media_buttons' => false,
+                            'tinymce'       => true,
+                            'quicktags'     => true,
+                        )
+                    );
+                ?>
+                <small class="form-text text-muted">This text will be displayed under the popup window text.</small>
+            </div>
 
-        <h3>
-            Redirection footer message
-        </h3>
+        </fieldset>
+
+        <fieldset class="redirect-choose-location">
+
+            <legend>Redirect information (user chooses location)</legend>
+            <p class="form-text text-muted">These options will be used for the redirection popup where the user can choose in which store to buy.</p>
+
+            <div class="form-group">
+                <label for="redirection_choose_title">Choose Redirection Title <span class="input-required">(required)</span></label>
+                <input type="text" class="form-control" id="redirection_choose_title" name="redirection_choose_title" required value="<?php echo esc_attr($values['redirection_choose_title']); ?>">
+            </div>
+        
+            <div class="form-group">
+                <label for="redirection_choose_info">Choose Redirection Text <span class="input-required">(required)</span></label>
+                <?php
+                    wp_editor(
+                        $values['redirection_choose_info'],
+                        'redirection_choose_info',
+                        array(
+                            'textarea_name' => 'redirection_choose_info',
+                            'textarea_rows' => 8,
+                            'media_buttons' => false,
+                            'tinymce'       => true,
+                            'quicktags'     => true,
+                        )
+                    );
+                ?>
+            </div>
+
+        </fieldset>
 
         <div class="form-group">
             <label for="show_footer_message">Show redirection message in footer</label>
@@ -433,22 +381,29 @@ class IpLocationRedirectAdmin {
             </div>
         </div>
 
-        <div class="form-group">
-            <label for="redirection_footer_message">Redirection footer message</label>
-            <?php
-                wp_editor(
-                    $values['redirection_footer_message'],
-                    'redirection_footer_message',
-                    array(
-                        'textarea_name' => 'redirection_footer_message',
-                        'textarea_rows' => 8,
-                        'media_buttons' => false,
-                        'tinymce'       => true,
-                        'quicktags'     => true,
-                    )
-                );
-            ?>
-        </div>
+        <fieldset class="redirect-footer-message">
+
+            <legend>Redirect footer information</legend>
+            <p class="form-text text-muted">These options will be used for a message showed in the footer, which locations are available with a possiblity to change.</p>
+
+            <div class="form-group">
+                <label for="redirection_footer_message">Redirection footer message</label>
+                <?php
+                    wp_editor(
+                        $values['redirection_footer_message'],
+                        'redirection_footer_message',
+                        array(
+                            'textarea_name' => 'redirection_footer_message',
+                            'textarea_rows' => 8,
+                            'media_buttons' => false,
+                            'tinymce'       => true,
+                            'quicktags'     => true,
+                        )
+                    );
+                ?>
+            </div>
+
+        </fieldset>
 
         <?php
     }
