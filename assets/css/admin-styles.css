@@ -94,7 +94,8 @@
 .repeater-drag-handle {
     cursor: move;
     display: inline-block;
-    margin-bottom: 5px;
+    font-size: 20px;
+    margin-bottom: 8px;
 }
 
 .add-repeater,

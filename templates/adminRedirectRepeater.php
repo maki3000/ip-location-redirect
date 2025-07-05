@@ -14,10 +14,7 @@ $redirect_url_value = isset($redirect['redirect_url']) ? $redirect['redirect_url
 ?>
 <div class="form-group redirect-repeater" data-index="<?php echo esc_attr($index); ?>">
     <span class="repeater-drag-handle" title="Drag to reorder" style="cursor:move;display:inline-block;vertical-align:middle;margin-right:8px;">
-        <svg width="18" height="18" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg" style="vertical-align:middle;transform:rotate(90deg);">
-            <path d="M6 2L2 9L6 16" stroke="#888" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-            <path d="M12 2L16 9L12 16" stroke="#888" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-        </svg>
+        &udarr;
     </span>
     <div class="form-repeater-block">
         <label for="country">Country <span class="input-required">(required)</span></label>
