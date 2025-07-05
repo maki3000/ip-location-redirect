@@ -36,7 +36,6 @@ $redirect_url_value = isset($redirect['redirect_url']) ? $redirect['redirect_url
         </select>
     </div>
 
-    <!-- moved below -->
     <div class="form-repeater-block">
         <div class="form-radio">
             <label>IP Action <span class="input-required">(required)</span></label>
@@ -52,7 +51,7 @@ $redirect_url_value = isset($redirect['redirect_url']) ? $redirect['redirect_url
     </div>
     <div class="form-repeater-block">
         <label for="redirect_url">Redirect to URL <span class="input-required">(required)</span></label>
-        <input type="text" class="form-control redirect-url-input" id="redirect_url_<?php echo esc_attr($index); ?>" name="redirect_url[<?php echo esc_attr($index); ?>]" value="<?php echo esc_attr($redirect_url_value); ?>">
+        <input type="url" class="form-control redirect-url-input" id="redirect_url_<?php echo esc_attr($index); ?>" name="redirect_url[<?php echo esc_attr($index); ?>]" value="<?php echo esc_attr($redirect_url_value); ?>">
     </div>
     <div class="form-repeater-block">
         <label for="redirect_message_before_<?php echo esc_attr($index); ?>">Redirect message (before link) <span class="input-required">(required)</span></label>
