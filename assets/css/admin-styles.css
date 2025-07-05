@@ -1,11 +1,33 @@
-.redirect-choose-location legend,
-.redirect-automatic-location legend,
-.redirect-footer-message legend {
-    border-top: 1px soild #333;
-    font-size: 24px;
-    font-weight: bold;
-    margin-top: 24px;
+.redirect-fieldset {
+    margin-block: 12px;
+}
+
+.redirect-fieldset-legend {
+    border-top: 1px solid #333;
+    font-size: 20px;
+    margin-bottom: 6px;
     padding-top: 12px;
+    width: 100%;
+}
+.redirect-fieldset-legend--first {
+    border-top: none;
+    margin-top: 0;
+    padding-top: 0;
+}
+
+.redirect-fieldset-description {
+    font-size: 14px;
+    margin-block: 4px;
+    color: #666;
+}
+
+.redirect-fieldset-inner {
+    background-color: #fff;
+    border: 1px solid #ccc;
+    padding: 10px;
+}
+.redirect-fieldset-inner .form-group:last-child {
+    margin-bottom: 0;
 }
 
 /* Apply a border-radius of 2px to all form elements */
@@ -40,8 +62,12 @@
     font-weight: normal;
 }
 
+.form-group .redirection-editor-label {
+    margin-bottom: -32px;
+}
+
 .input-required {
-    color: red;
+    color: #fb9696;
     display: inline-block;
     font-size: 12px;
     font-weight: normal;
@@ -84,13 +110,13 @@
 }
 
 /* Style the repeater container and its children */
-.repeater {
+.redirect-repeater {
     border: 1px solid #ccc;
     padding: 10px;
     margin-bottom: 10px;
 }
 
-.repeater label {
+.redirect-repeater label {
     display: block;
     margin-bottom: 5px;
     color: #333; /* Dark grey color for comments */
