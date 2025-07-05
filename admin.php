@@ -186,12 +186,12 @@ class IpLocationRedirectAdmin {
             // Check for errors and redirect accordingly
             if (!empty($errors)) {
                 // Display error messages or handle them as needed
-                // For example, you can store them in a transient and display them on the settings page
                 set_transient('ip_location_settings_errors', $errors, 30);
             } else {
                 // Redirect back to the settings page
-                set_transient('ip_location_settings_success', 'Settings saved successfully.', 30); // TODO: make success message translatable and make it work with wp_redirect on next line
-                wp_redirect(admin_url('admin.php?page=ip-location-settings'));
+                set_transient('ip_location_settings_success', 'Settings saved successfully.', 30);
+                wp_redirect(admin_url('admin.php?page=ip-location-redirect'));
+                exit;
             }
         }    
     }
@@ -241,8 +241,10 @@ class IpLocationRedirectAdmin {
     public function display_settings_page() {
         // Retrieve transient errors, if any
         $errors = get_transient('ip_location_settings_errors');
-        // Clear the transient after retrieval
         delete_transient('ip_location_settings_errors');
+        // Retrieve transient success, if any
+        $success = get_transient('ip_location_settings_success');
+        delete_transient('ip_location_settings_success');
 
         ?>
             <div class="wrap">
@@ -253,6 +255,12 @@ class IpLocationRedirectAdmin {
                     if (!empty($errors)) {
                         echo '<div class="error"><p>';
                         echo esc_html(implode('<br>', $errors));
+                        echo '</p></div>';
+                    }
+                    // Display success if there is any
+                    if (!empty($success)) {
+                        echo '<div class="updated notice is-dismissible"><p>';
+                        echo esc_html($success);
                         echo '</p></div>';
                     }
                 ?>
