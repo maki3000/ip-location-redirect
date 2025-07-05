@@ -23,22 +23,22 @@ jQuery(($) => {
         ];
 
         if (mode === 'use_given_redirect_options') {
-            $auto.show();
-            $choose.hide();
+            $auto.fadeIn();
+            $choose.fadeOut();
             useGivenRequired.forEach(sel => $(sel).attr('required', true));
             showOptionsRequired.forEach(sel => $(sel).removeAttr('required'));
         } else if (mode === 'show_redirect_options') {
-            $auto.hide();
-            $choose.show();
+            $auto.fadeOut();
+            $choose.fadeIn();
             useGivenRequired.forEach(sel => $(sel).removeAttr('required'));
             showOptionsRequired.forEach(sel => $(sel).attr('required', true));
         }
 
         // Footer message fieldset show/hide
         if ($footerCheckbox.is(':checked')) {
-            $footer.show();
+            $footer.fadeIn();
         } else {
-            $footer.hide();
+            $footer.fadeOut();
         }
     }
 
@@ -70,9 +70,9 @@ jQuery(($) => {
 
     // Function to add a new repeater item
     const addRepeaterItem = function() {
-        repeaterIndex++;
+        repeaterIndex++;        
 
-        const $repeaterItem = $('#redirection-repeater .repeater:first-child').clone();
+        const $repeaterItem = $('#redirection-repeater .redirect-repeater:first-child').clone();
         $repeaterItem.attr('data-index', repeaterIndex);
 
         // Update attributes and clear values
@@ -86,10 +86,10 @@ jQuery(($) => {
         $repeaterItem.find('.ip_action_from_country').attr('id', `ip_action_from_country__${repeaterIndex}`);
         $repeaterItem.find('.ip_action_from_country-label').attr('for', `ip_action_from_country__${repeaterIndex}`);
         $repeaterItem.find('.ip_action_not_from_country').attr('id', `ip_action_not_from_country__${repeaterIndex}`);
-        $repeaterItem.find('.ip_action_not_from_country-label').attr('for', `ip_action_not_from_country__${repeaterIndex}`);
+        $repeaterItem.find('.ip_action_not_from_country-label').attr('for', `ip_action_not_from_country__${repeaterIndex}`);        
 
         // Append the new repeater item
-        $('#redirection-repeater .repeaters').append($repeaterItem);
+        $('#redirection-repeater .redirect-repeaters').append($repeaterItem);
 
         // Attach preview update listeners
         attachPreviewListeners($repeaterItem);
@@ -153,7 +153,7 @@ jQuery(($) => {
 
 
     // Attach preview listeners to all existing repeater items on page load
-    $('#redirection-repeater .repeater').each(function() {
+    $('#redirection-repeater .redirect-repeater').each(function() {
         attachPreviewListeners($(this));
         updatePreview($(this));
     });
