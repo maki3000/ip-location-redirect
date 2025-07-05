@@ -12,14 +12,21 @@ $ip_action_value = isset($redirect['ip_action']) ? $redirect['ip_action'] : 'fro
 $redirect_url_value = isset($redirect['redirect_url']) ? $redirect['redirect_url'] : '';
 
 ?>
-<div class="form-group repeater" data-index="<?php echo esc_attr($index); ?>">
+<div class="form-group redirect-repeater" data-index="<?php echo esc_attr($index); ?>">
+    <span class="repeater-drag-handle" title="Drag to reorder" style="cursor:move;display:inline-block;vertical-align:middle;margin-right:8px;">
+        <svg width="18" height="18" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg" style="vertical-align:middle;transform:rotate(90deg);">
+            <path d="M6 2L2 9L6 16" stroke="#888" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M12 2L16 9L12 16" stroke="#888" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+    </span>
     <div class="form-repeater-block">
         <label for="country">Country <span class="input-required">(required)</span></label>
+        <input type="hidden" class="repeater-index-input" name="repeater_index[<?php echo esc_attr($index); ?>]" value="<?php echo esc_attr($index); ?>">
         <select class="form-control" id="country" name="country[<?php echo esc_attr($index); ?>]" required>
             <option value="" disabled <?php echo empty($country_value) ? 'selected' : ''; ?>>Please select a country</option>
             <?php
                 // Include the countries list
-                include plugin_dir_path(__FILE__) . 'countriesList.php';
+                include plugin_dir_path(__FILE__) . 'adminCountriesList.php';
                 // Output the options
                 foreach ($countries as $code => $name) {
                     $selected = ($country_value === $code) ? 'selected' : '';
@@ -66,7 +73,7 @@ $redirect_url_value = isset($redirect['redirect_url']) ? $redirect['redirect_url
             $url_display = preg_replace('#^https?://#', '', $url);
             echo esc_attr(trim($before . ' ' . $url_display . ' ' . $after));
         ?>" disabled>
-        <small class="form-text text-muted">This is a live preview of the final output for this redirect action.</small>
+        <small class="form-text text-muted">This is a live preview of the final output for this redirect action. The domain will be a link, so the user is able to change the location.</small>
     </div>
     <button class="btn btn-danger remove-repeater" type="button">Remove</button>
 </div>
