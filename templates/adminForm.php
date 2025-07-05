@@ -169,11 +169,15 @@ if (!defined('ABSPATH')) {
 
     <legend class="redirect-fieldset-legend">Show redirection message in footer</legend>
 
-    <div class="form-group">
-        <div class="form-check">
-            <input type="checkbox" class="form-check-input" id="show_footer_message" name="show_footer_message" <?php checked($values['show_footer_message'], 1); ?>>
-            <label class="form-check-label" for="show_footer_message">Enable redirection message in footer</label>
+    <div class="redirect-fieldset-inner">
+
+        <div class="form-group">
+            <div class="form-check">
+                <input type="checkbox" class="form-check-input" id="show_footer_message" name="show_footer_message" <?php checked($values['show_footer_message'], 1); ?>>
+                <label class="form-check-label" for="show_footer_message">Enable redirection message in footer</label>
+            </div>
         </div>
+
     </div>
 
 </fieldset>
