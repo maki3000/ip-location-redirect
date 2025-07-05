@@ -143,23 +143,27 @@ if (!defined('ABSPATH')) {
 
     <legend class="redirect-fieldset-legend">Redirect Actions <span class="input-required">(required)</span></legend>
 
-    <div id="redirection-repeater" class="form-group">
+    <div class="redirect-fieldset-inner">
 
-        <div class="redirect-repeaters">
-            <?php
-                if (empty($values['redirects'])) {
-                    $index = 0;
-                    include plugin_dir_path(__FILE__) . 'adminRedirectRepeater.php';
-                } else {
-                    foreach ($values['redirects'] as $index => $redirect) {
+        <div id="redirection-repeater" class="form-group">
+
+            <div class="redirect-repeaters">
+                <?php
+                    if (empty($values['redirects'])) {
+                        $index = 0;
                         include plugin_dir_path(__FILE__) . 'adminRedirectRepeater.php';
+                    } else {
+                        foreach ($values['redirects'] as $index => $redirect) {
+                            include plugin_dir_path(__FILE__) . 'adminRedirectRepeater.php';
+                        }
                     }
-                }
-            ?>
-        </div>
+                ?>
+            </div>
 
-        <small class="form-text text-muted">The first redirect that fulfills the setting will be executed.</small>
-        <button class="btn btn-success add-repeater" type="button">Add new redirect</button>
+            <small class="form-text text-muted">The first redirect that fulfills the setting will be executed.</small>
+            <button class="btn btn-success add-repeater" type="button">Add new redirect</button>
+
+        </div>
 
     </div>
 

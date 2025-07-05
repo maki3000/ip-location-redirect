@@ -76,7 +76,6 @@
 .form-check input[type="radio"] {
     display: inline-block;
 }
-
 .form-radio-option {
     align-items: center;
     display: flex;
@@ -85,6 +84,7 @@
 
 /* Style text fields and textareas to have a minimum width of 40% */
 .form-group input[type="text"],
+.form-group input[type="url"],
 .form-group select,
 .form-group textarea {
     width: 60%;
@@ -117,6 +117,7 @@
 
 /* Style the repeater container and its children */
 .redirect-repeater {
+    background-color: #eee;
     border: 1px solid #ccc;
     padding: 10px;
     margin-bottom: 10px;
@@ -125,7 +126,7 @@
 .redirect-repeater label {
     display: block;
     margin-bottom: 5px;
-    color: #333; /* Dark grey color for comments */
+    color: #333;
 }
 
 .form-repeater-block {
@@ -133,7 +134,8 @@
 }
 
 /* Style the add/remove buttons */
-.add-repeater, .remove-repeater {
+.add-repeater,
+.remove-repeater {
     margin-top: 10px;
 }
 
@@ -147,5 +149,5 @@
 .form-group small {
     display: block;
     margin-top: 2px;
-    color: #666; /* Dark grey color for comments */
+    color: #666;
 }
