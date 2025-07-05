@@ -51,13 +51,6 @@ jQuery(($) => {
     // Counter for repeater items
     let repeaterIndex = 0;
 
-    const showHideRepeaterRemoveButton = function() {
-        if ($('.repeater').length <= 1) {
-            $('.remove-repeater').hide();
-        } else {
-            $('.remove-repeater').show();
-        }
-    }
     // Function to update the preview field for a repeater item
     const updatePreview = function($repeaterItem) {
         const before = $repeaterItem.find('.redirect-message-before-input').val() || '';
@@ -93,10 +86,6 @@ jQuery(($) => {
 
         // Attach preview update listeners
         attachPreviewListeners($repeaterItem);
-
-        // Update GUI
-        updateSelectOptions();
-        showHideRepeaterRemoveButton();
     }
 
     // Attach preview update listeners to a repeater item
@@ -109,35 +98,32 @@ jQuery(($) => {
     // Function to remove a repeater item
     const removeRepeaterItem = function($repeaterItem) {
         $repeaterItem.remove();
-
-        // Update GUI
-        updateSelectOptions();
-        showHideRepeaterRemoveButton();
+        updateRepeaterActions();
     };
 
     // Function to update options in the default_redirect_option select
-    const updateSelectOptions = function() {
-        const $select = $('#default_redirect_option');
-        const selectedValue = $select.val();
+    const updateRepeaterActions = function() {
+        // Update all .redirect-repeater items' indexes and name attributes
+        $('#redirection-repeater .redirect-repeater').each(function(i) {
+            // Update data-index attribute
+            $(this).attr('data-index', i);
 
-        // Remove all existing options
-        $select.empty();
+            // Update all fields with .repeater-index class
+            $(this).find('.repeater-index').each(function() {
+                // Update name attribute: replace [oldIndex] with [i]
+                let name = $(this).attr('name');
+                if (name) {
+                    name = name.replace(/\[\d+\]/, '[' + i + ']');
+                    $(this).attr('name', name);
+                }
+            });
 
-        // Add default options
-        $select.append('<option value="do_nothing">Do nothing (standard)</option>');
-
-        // Add options based on repeater items
-        $('#redirection-repeater .repeater').each(function() {
-            const countryValue = $(this).find('[name^="country"]').val();
-            const ipActionValue = $(this).find('[name^="ip_action"]:checked').val();
-            const redirectUrlValue = $(this).find('[name^="redirect_url"]').val();
-
-            // Add option based on repeater item values
-            $select.append(`<option value="${redirectUrlValue}">Go to URL: ${redirectUrlValue}</option>`);
+            // Update id and for attributes for checkboxes/labels if present
+            $(this).find('.ip_action_from_country').attr('id', `ip_action_from_country__${i}`);
+            $(this).find('.ip_action_from_country-label').attr('for', `ip_action_from_country__${i}`);
+            $(this).find('.ip_action_not_from_country').attr('id', `ip_action_not_from_country__${i}`);
+            $(this).find('.ip_action_not_from_country-label').attr('for', `ip_action_not_from_country__${i}`);
         });
-
-        // Set the previously selected value
-        $select.val(selectedValue);
     };
 
     // Event listener for adding a new repeater item
@@ -147,18 +133,15 @@ jQuery(($) => {
 
     // Event listener for removing a repeater item
     $('#redirection-repeater').on('click', '.remove-repeater', function() {
-        const $repeaterItem = $(this).closest('.repeater');
+        const $repeaterItem = $(this).closest('.redirect-repeater');
         removeRepeaterItem($repeaterItem);
     });
-
 
     // Attach preview listeners to all existing repeater items on page load
     $('#redirection-repeater .redirect-repeater').each(function() {
         attachPreviewListeners($(this));
         updatePreview($(this));
     });
-
-    showHideRepeaterRemoveButton();
 
     $('.media-upload-button').on('click', function(e) {
         e.preventDefault();
