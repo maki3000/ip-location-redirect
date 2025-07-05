@@ -3,7 +3,6 @@
 }
 
 .redirect-fieldset-legend {
-    border-top: 1px solid #333;
     font-size: 20px;
     margin-bottom: 6px;
     padding-top: 12px;
@@ -90,6 +89,12 @@
 .form-group textarea {
     width: 60%;
     box-sizing: border-box;
+}
+
+.repeater-drag-handle {
+    cursor: move;
+    display: inline-block;
+    margin-bottom: 5px;
 }
 
 .add-repeater,
