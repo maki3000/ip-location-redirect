@@ -25,6 +25,8 @@
                 <?php if (!empty($redirectChooseInfo)): ?>
                     <?= wp_kses_post($redirectChooseInfo); ?>
                 <?php endif; ?>
+            </div>
+            <div class="popup-redirect-list">
                 <ul>
                     <?= $redirectChooseListMarkup; ?>
                 </ul>

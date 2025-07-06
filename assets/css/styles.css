@@ -60,6 +60,7 @@
 }
 .popup-header h2 {
     font-size: 24px;
+    margin-bottom: 22px;
     max-width: 580px;
 }
 
@@ -67,14 +68,20 @@
     margin-bottom: 0;
 }
 
-.popup-text-content ul {
-    margin-bottom: 8px;
+.popup-text-content {
+    line-height: 1.4;
+    margin-bottom: 12px;
 }
-.popup-text-content ul li {
+.popup-redirect-list ul {
+    list-style: disc;
+    margin-bottom: 8px;
+    padding-left: 24px;
+}
+.popup-redirect-list ul li {
     font-size: 22px;
     margin-bottom: 6px;
 }
-.popup-text-content ul li a {
+.popup-redirect-list ul li a {
     font-size: 22px;
     min-width: unset;
     padding: 0;
@@ -130,4 +137,10 @@
     animation: rotate 1s linear infinite;
     height: 120px;
     width: 120px;
+}
+
+@media screen and (max-width: 992px) {
+    .popup-text-goto-link-choose.popup-close {
+        font-size: 16px;
+    }
 }
