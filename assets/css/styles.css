@@ -64,6 +64,9 @@
     max-width: 580px;
 }
 
+.popup-back {
+    margin-bottom: 12px;
+}
 .popup-info {
     margin-bottom: 0;
 }
@@ -93,8 +96,9 @@
 .popup-close {
     cursor: pointer;
     font-size: 18px;
-    min-width: 120px;
-    padding: 8px;
+    margin-top: 12px;
+    min-width: 100px;
+    padding: 4px;
 }
 
 .popup-text-goto-link-choose.popup-close {
