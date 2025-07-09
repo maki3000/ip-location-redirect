@@ -2,10 +2,6 @@
 
     <div class="popup-overlay"></div>
 
-    <div class="loader-container">
-        <img src="<?= esc_url($loaderImage); ?>" alt="Loading..." />
-    </div>
-
     <div class="popup-window" role="dialog" aria-hidden="true">
         <div class="popup-content">
             <div class="popup-header">

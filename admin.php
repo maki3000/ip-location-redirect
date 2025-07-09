@@ -67,12 +67,6 @@ class IpLocationRedirectAdmin {
                 $errors[] = 'IP API is required.';
             }
         
-            // Validate and save loader
-            $saved_values['loader'] = sanitize_text_field($_POST['loader']);
-            if (empty($saved_values['loader'])) {
-                $errors[] = 'Loader URL is required.';
-            }
-        
             // Validate and save redirection_title
             $saved_values['redirection_title'] = sanitize_text_field($_POST['redirection_title']);
             if (empty($saved_values['redirection_title'])) {
@@ -205,7 +199,6 @@ class IpLocationRedirectAdmin {
         $keys = array(
             'redirection_active',
             'ip_api',
-            'loader',
             'redirection_title',
             'redirection_text',
             'redirection_info',

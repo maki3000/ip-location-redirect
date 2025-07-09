@@ -34,14 +34,6 @@ if (!defined('ABSPATH')) {
             </select>
             <small class="form-text text-muted">At the moment only ip-api.com is implemented and the value of the first item in the list will be active.</small>
         </div>
-    
-        <div class="form-group">
-            <label for="loader">Loader <span class="input-required">(required)</span></label>
-            <div class="media-chooser-container">
-                <input type="text" class="form-control media-chooser" id="loader" name="loader" required value="<?php echo esc_attr($values['loader']); ?>">
-                <button class="btn btn-secondary media-upload-button" type="button">Choose Media</button>
-            </div>
-        </div>
 
         <div class="form-group">
             <label for="current_shop_label">Current shop label <span class="input-required">(required)</span></label>
