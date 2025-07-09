@@ -82,7 +82,7 @@ class IpLocationRedirect {
 
         if ($settings['default_redirect_option'] === 'show_redirect_options') {
             // show redirect options (do not automatically redirect)
-            add_action( 'wp', array( $this, 'include_choose_location_popup_content' ), 100 );
+            add_action('wp', array( $this, 'include_choose_location_popup_content' ), 100);
         } else if ($settings['default_redirect_option'] === 'use_given_redirect_options') {
             // check if redirected
             add_action('template_redirect', [$this, 'check_for_parameters'], 1);
@@ -189,30 +189,22 @@ class IpLocationRedirect {
 
         $this->set_cookie(self::COOKIE_HAS_SHOWN_LOCATION_CHOOSE, 1);
 
-        $param = sanitize_text_field($_GET['redirect'] ?? null);
-        if (isset($param) && $param === 'chosen') {
+        $param = sanitize_text_field($_GET['redirect_chosen'] ?? null);
+        if (isset($param) && $param === '1') {
             return false;
         }
 
         $this->load_scripts_if_needed();
-        add_action( 'wp_footer', array( $this->templates, 'include_choose_popup' ), 100 );
+        add_action('wp_footer', [$this->templates, 'include_choose_popup'], 100);
     }
 
     public function check_for_parameters() {
-        if (!isset($_GET['redirected'])) {
+        if (!isset($_GET['redirected']) || !isset($_GET['ip_location_redirected_to'])) {
             return false;
         }
 
-        $cookie_map = [
-            'ip_location_redirected_to',
-        ];
-
-        foreach ($cookie_map as $key) {
-            if (isset($_GET[$key])) {
-                $value = sanitize_text_field($_GET[$key]);
-                setcookie($key, $value, time() + 86400, '/');
-            }
-        }
+        $redirectedTo = isset($_GET['ip_location_redirected_to']) ? sanitize_text_field($_GET['ip_location_redirected_to']) : null; 
+        $this->set_cookie(self::COOKIE_REDIRECTED_TO, $redirectedTo);
 
         /*
         if (!isset($_GET['redirected_cleaned'])) {
