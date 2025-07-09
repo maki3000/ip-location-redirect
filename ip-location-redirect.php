@@ -82,14 +82,14 @@ class IpLocationRedirect {
 
         if ($settings['default_redirect_option'] === 'show_redirect_options') {
             // show redirect options (do not automatically redirect)
-            add_action('wp', array( $this, 'include_choose_location_popup_content' ), 100);
+            add_action('wp', [$this, 'include_choose_location_popup_content'], 100);
         } else if ($settings['default_redirect_option'] === 'use_given_redirect_options') {
             // check if redirected
-            add_action('template_redirect', [$this, 'check_for_parameters'], 1);
+            add_action('wp', [$this, 'check_for_parameters'], 1); // TODO: test if 'wp' works here
             // call redirection API if needed
             $param = sanitize_text_field($_GET['redirect_chosen'] ?? null);
             if ($param === '1') {
-                $this->set_cookie(self::COOKIE_REDIRECTED_TO, 1);
+                add_action('wp', [$this, 'handle_redirect_chosen'], 1);
             }
             if (!isset($this->redirectToCookie) && $param === '') {
                 add_action('template_redirect', [$this, 'call_ip_location_redirect'], 10);
@@ -154,8 +154,8 @@ class IpLocationRedirect {
 
     private function load_scripts_if_needed() {
         if (!$this->scriptsLoaded) {
-            add_action( 'wp_enqueue_scripts', array( $this, 'ajax_scripts' ), 10 );
-            add_action( 'wp_enqueue_scripts', array( $this, 'enqueue_stylesheet' ), 10 );
+            add_action('wp_enqueue_scripts', [$this, 'ajax_scripts'], 10 );
+            add_action('wp_enqueue_scripts', [$this, 'enqueue_stylesheet'], 10 );
             $this->scriptsLoaded = true;
         }
     }
@@ -175,7 +175,7 @@ class IpLocationRedirect {
     public function show_redirection_popup() {
         $this->set_cookie(self::COOKIE_HAS_SHOWN_LOCATION, 1);
 
-        add_action( 'wp_footer', array( $this->templates, 'include_redirect_popup' ), 100 );
+        add_action( 'wp_footer', [$this->templates, 'include_redirect_popup'], 100 );
     }
 
     public function include_choose_location_popup_content() {
@@ -192,6 +192,13 @@ class IpLocationRedirect {
 
         $this->load_scripts_if_needed();
         add_action('wp_footer', [$this->templates, 'include_choose_popup'], 100);
+    }
+
+    public function handle_redirect_chosen() {
+        $this->set_cookie(self::COOKIE_REDIRECTED_TO, 1);
+
+        // Add action to include the URL cleanup script in the footer
+        add_action('wp_enqueue_scripts', [$this, 'url_cleanup_script'], 99);
     }
 
     public function check_for_parameters() {
@@ -276,7 +283,7 @@ class IpLocationRedirect {
                         $currentUrl = $this->get_current_url();
 
                         if (isset($redirectUrl) && $currentUrl !== $this->cookieUrl) {
-                            add_action( 'template_redirect',  array($this, 'redirect_to'), 100 );
+                            add_action( 'template_redirect',  [$this, 'redirect_to'], 100 );
                         }
                     }
 				} else {
