@@ -161,6 +161,10 @@ class IpLocationRedirect {
         wp_enqueue_script( 'ajax-script', plugins_url('/ip-location-redirect/assets/js/script.js'), array('jquery'), '1.0', true );
     }
 
+    public function url_cleanup_script() {
+        wp_enqueue_script( 'remove-url-params-script', plugins_url('/ip-location-redirect/assets/js/remove-url-params-script.js'), array('jquery'), '1.0', true );
+    }
+
     public function enqueue_stylesheet() {
         wp_enqueue_style('popup-stylesheet', plugins_url('/ip-location-redirect/assets/css/styles.css'));
     }
@@ -192,8 +196,11 @@ class IpLocationRedirect {
             return false;
         }
 
-        $redirectedTo = isset($_GET['ip_location_redirected_to']) ? sanitize_text_field($_GET['ip_location_redirected_to']) : null; 
+        $redirectedTo = isset($_GET['ip_location_redirected_to']) ? sanitize_text_field($_GET['ip_location_redirected_to']) : null;
         $this->set_cookie(self::COOKIE_REDIRECTED_TO, $redirectedTo);
+
+        // Add action to include the URL cleanup script in the footer
+        add_action('wp_enqueue_scripts', [$this, 'url_cleanup_script'], 99);
 
         // show popup if user was redirected but not informed yet
         $this->load_scripts_if_needed();
