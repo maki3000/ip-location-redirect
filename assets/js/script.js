@@ -20,7 +20,7 @@ jQuery(() => {
         }
     });
 
-    jQuery(document).on('click', '.popup-close, .popup-close-popup, .popup-window .closer, .popup-overlay', function(event) {
+    jQuery(document).on('click', '.popup-close, .popup-close-popup, .popup-window .closer', function(event) {
         event.preventDefault();
 
         const $popup = jQuery(this).closest('.popup-window');
