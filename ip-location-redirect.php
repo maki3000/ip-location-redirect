@@ -87,7 +87,8 @@ class IpLocationRedirect {
             // check if redirected
             add_action('template_redirect', [$this, 'check_for_parameters'], 1);
             // call redirection API if needed
-            if (!isset($this->redirectToCookie)) {
+            $param = sanitize_text_field($_GET['redirect_chosen'] ?? null);
+            if (!isset($this->redirectToCookie) && $param === '') {
                 add_action('template_redirect', [$this, 'call_ip_location_redirect'], 10);
             }
         }
@@ -126,18 +127,6 @@ class IpLocationRedirect {
         $protocol = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') ? 'https://' : 'http://';
         return $protocol . $url;
     }
-
-    public function should_skip_redirect(): bool {
-        $request_uri = $_SERVER['REQUEST_URI'] ?? '';
-
-        return (
-            preg_match('/\.(css|js|jpe?g|png|gif|svg|woff2?|ttf|eot|ico|webp|avif)(\?.*)?$/i', $request_uri)
-            || strpos($request_uri, '/wp-admin/') === 0
-            || strpos($request_uri, '/wp-login.php') === 0
-            || (defined('DOING_AJAX') && DOING_AJAX)
-        );
-    }
-
 
     public function redirect_to() {
         $redirectTo = $this->redirectTo;
@@ -205,21 +194,6 @@ class IpLocationRedirect {
 
         $redirectedTo = isset($_GET['ip_location_redirected_to']) ? sanitize_text_field($_GET['ip_location_redirected_to']) : null; 
         $this->set_cookie(self::COOKIE_REDIRECTED_TO, $redirectedTo);
-
-        /*
-        if (!isset($_GET['redirected_cleaned'])) {
-            $current_url = (is_ssl() ? 'https://' : 'http://') . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'];
-
-            // Remove unwanted query args
-            $clean_url = remove_query_arg([
-                'redirected',
-                'ip_location_redirected_to',
-            ], $current_url);
-
-            // Append safeguard parameter
-            $final_url = add_query_arg('redirected_cleaned', 1, $clean_url);
-        }
-        */
 
         // show popup if user was redirected but not informed yet
         $this->load_scripts_if_needed();
@@ -292,9 +266,6 @@ class IpLocationRedirect {
                         $currentUrl = $this->get_current_url();
 
                         if (isset($redirectUrl) && $currentUrl !== $this->cookieUrl) {
-                            if ($this->should_skip_redirect()) {
-                                return;
-                            }
                             add_action( 'template_redirect',  array($this, 'redirect_to'), 100 );
                         }
                     }
