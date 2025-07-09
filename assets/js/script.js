@@ -20,18 +20,10 @@ jQuery(() => {
         }
     });
 
-    jQuery(document).on('click', '.popup-close, .popup-window .closer', function(event) {
+    jQuery(document).on('click', '.popup-close, .popup-close-popup, .popup-window .closer, .popup-overlay', function(event) {
         event.preventDefault();
 
         const $popup = jQuery(this).closest('.popup-window');
-        const $popupOverlay = jQuery(this).closest('.popup-wrapper').find('.popup-overlay');
-
-        hidePopup($popup, $popupOverlay);
-    });
-    jQuery(document).on('click', '.popup-overlay', function(event) {
-        event.preventDefault();
-
-        const $popup = jQuery(this).closest('.popup-wrapper').find('.popup-window');
         const $popupOverlay = jQuery(this).closest('.popup-wrapper').find('.popup-overlay');
 
         hidePopup($popup, $popupOverlay);
