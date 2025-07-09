@@ -36,7 +36,7 @@ class IpLocationRedirectTemplates {
             $textArray = ['', $text];
         }
         // Ensure all parts are escaped for HTML output
-        return esc_html($textArray[0]) . ' <span class="' . esc_attr($span_class) . '">' . esc_html($shop_url) . '</span> ' . esc_html($textArray[1]);
+        return wp_kses_post($textArray[0]) . ' <span class="' . esc_attr($span_class) . '">' . esc_html($shop_url) . '</span> ' . wp_kses_post($textArray[1]);
     }
 
     /**
