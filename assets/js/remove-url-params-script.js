@@ -3,7 +3,12 @@ jQuery(() => {
     const params = new URLSearchParams(url.search);
 
     // Define the parameters to remove
-    const paramsToRemove = ['redirected', 'ip_location_redirected_to'];
+    const paramsToRemove = [
+        'redirected',
+        'ip_location_redirected_to',
+        'redirect_chosen',
+        'redirected_to',
+    ];
     let paramsRemoved = false;
 
     // Check for and delete only the specified parameters
