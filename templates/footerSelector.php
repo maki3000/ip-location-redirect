@@ -7,7 +7,7 @@
                     <?= wp_kses_post($redirectBackMarkup); ?>
                 </div>
             <?php endif; ?>
-            <div class="footer-redirect-list">
+            <div class="footer-redirect-list-container">
                 <ul>
                     <?= $redirectListMarkup; ?>
                 </ul>
