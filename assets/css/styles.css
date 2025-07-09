@@ -76,12 +76,12 @@
     line-height: 1.4;
     margin-bottom: 12px;
 }
-.popup-redirect-list ul {
+.popup-redirect-list-container ul {
     list-style: disc;
     margin-bottom: 8px;
     padding-left: 24px;
 }
-.popup-redirect-list ul li {
+.popup-redirect-list-container ul li {
     font-size: 22px;
     margin-bottom: 6px;
 }
@@ -116,7 +116,7 @@
     .popup-header h2 {
         font-size: 20px;
     }
-    .popup-redirect-list ul li {
+    .popup-redirect-list-container ul li {
         font-size: 16px;
     }
 }

@@ -22,7 +22,7 @@
                     <?= wp_kses_post($redirectChooseInfo); ?>
                 <?php endif; ?>
             </div>
-            <div class="popup-redirect-list">
+            <div class="popup-redirect-list-container">
                 <ul>
                     <?= $redirectChooseListMarkup; ?>
                 </ul>

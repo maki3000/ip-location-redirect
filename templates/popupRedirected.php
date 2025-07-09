@@ -21,7 +21,7 @@
                 <div class="popup-back">
                     <?= wp_kses_post($redirectBackMarkup); ?>
                 </div>
-                <div class="popup-redirect-list">
+                <div class="popup-redirect-list-container">
                     <ul>
                         <?= $redirectListMarkup; ?>
                     </ul>
