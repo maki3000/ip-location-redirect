@@ -88,6 +88,9 @@ class IpLocationRedirect {
             add_action('template_redirect', [$this, 'check_for_parameters'], 1);
             // call redirection API if needed
             $param = sanitize_text_field($_GET['redirect_chosen'] ?? null);
+            if ($param === '1') {
+                $this->set_cookie(self::COOKIE_REDIRECTED_TO, 1);
+            }
             if (!isset($this->redirectToCookie) && $param === '') {
                 add_action('template_redirect', [$this, 'call_ip_location_redirect'], 10);
             }
