@@ -74,13 +74,13 @@ class IpLocationRedirectAdmin {
             }
         
             // Validate and save redirection_text
-            $saved_values['redirection_text'] = sanitize_text_field($_POST['redirection_text']);
+            $saved_values['redirection_text'] = wp_kses_post($_POST['redirection_text']);
             if (empty($saved_values['redirection_text'])) {
                 $errors[] = 'Redirection Text is required.';
             }
         
             // Validate and save redirection_info
-            $saved_values['redirection_info'] = sanitize_text_field($_POST['redirection_info']);
+            $saved_values['redirection_info'] = wp_kses_post($_POST['redirection_info']);
         
             // Validate and save repeater fields
             $redirect_actions = isset($_POST['country']) ? $_POST['country'] : array();
