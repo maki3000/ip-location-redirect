@@ -11,7 +11,7 @@ class IpLocationRedirectTemplates {
 
     public function __construct($plugin_instance) {
         $this->plugin = $plugin_instance;
-        
+
         if (!empty($this->plugin->admin)) {
             $this->settings = $this->plugin->admin->get_settings();
         }
@@ -21,7 +21,33 @@ class IpLocationRedirectTemplates {
         return $_SERVER['HTTP_HOST'];
     }
 
-    private function get_footer_template_data($settings) {
+    /**
+     * Helper to format text containing {{ shopUrl }} placeholder.
+     *
+     * @param string $text_setting The raw text from settings.
+     * @param string $shop_url The shop URL to insert.
+     * @param string $span_class The CSS class for the span wrapping the shop URL.
+     * @return string The formatted HTML string.
+     */
+    private function _format_shop_url_text($text_setting, $shop_url, $span_class) {
+        $text = $text_setting ?? '';
+        $textArray = explode('{{ shopUrl }}', $text, 2);
+        if (count($textArray) < 2) {
+            $textArray = ['', $text];
+        }
+        // Ensure all parts are escaped for HTML output
+        return esc_html($textArray[0]) . ' <span class="' . esc_attr($span_class) . '">' . esc_html($shop_url) . '</span> ' . esc_html($textArray[1]);
+    }
+
+    /**
+     * Generates the HTML list markup for redirects based on settings.
+     *
+     * @param array $settings The plugin settings array.
+     * @param string $link_class The CSS class to apply to the redirect links.
+     * @param bool $add_close_class Whether to add the 'popup-close-popup' class to links matching the current URL.
+     * @return string The generated HTML list markup.
+     */
+    private function _generate_redirect_list_markup($settings, $link_class, $add_close_class = false) {
         $redirectListMarkup = '';
 
         if (isset($settings['redirects']) && count($settings['redirects'])) {
@@ -29,125 +55,80 @@ class IpLocationRedirectTemplates {
             $currentShopLabel = $settings['current_shop_label'];
 
             foreach ($settings['redirects'] as $key => $redirect) {
+                // Ensure redirect is an array and has required keys before accessing
+                if (!is_array($redirect) || !isset($redirect['redirect_url'], $redirect['redirect_message_before'], $redirect['redirect_message_after'])) {
+                    continue; // Skip if redirect data is incomplete
+                }
+
                 $redirectUrl = str_replace(array('http://', 'https://'), '', $redirect['redirect_url']);
                 $before = $redirect['redirect_message_before'];
                 $after = $redirect['redirect_message_after'];
-                if ($redirectUrl === $currentUrl) {
-                    $redirectListMarkup .= '<li>' . esc_html($before) . ' <a href="' . $redirect['redirect_url'] . '" class="popup-text-goto-link">' . $redirectUrl . '</a> ' . esc_html($after) . ' ' . $currentShopLabel .'</li>';
-                } else {
-                    $redirectListMarkup .= '<li>' . esc_html($before) . ' <a href="' . $redirect['redirect_url'] . '?redirect_chosen=1&redirect_to=' . $redirectUrl . '" class="popup-text-goto-link">' . $redirectUrl . '</a> ' . esc_html($after) . '</li>';
+
+                $linkClasses = [$link_class];
+                if ($redirectUrl === $currentUrl && $add_close_class) {
+                    $linkClasses[] = 'popup-close-popup';
                 }
+                $linkClassesString = implode(' ', $linkClasses);
+
+                $linkHref = $redirect['redirect_url'];
+                if ($redirectUrl !== $currentUrl) {
+                    // Add query args for tracking chosen redirect
+                    $linkHref = add_query_arg(array(
+                        'redirect_chosen' => 1,
+                        'redirect_to'     => urlencode($redirectUrl), // Use urlencode for safety
+                    ), $linkHref);
+                }
+
+                $redirectListMarkup .= '<li>'
+                                     . esc_html($before) . ' '
+                                     . '<a href="' . esc_url($linkHref) . '" class="' . esc_attr($linkClassesString) . '">' . esc_html($redirectUrl) . '</a> '
+                                     . esc_html($after);
+
+                // Add current shop label only if it's the current shop's link
+                if ($redirectUrl === $currentUrl) {
+                     $redirectListMarkup .= ' ' . esc_html($currentShopLabel);
+                }
+
+                $redirectListMarkup .= '</li>';
             }
         }
 
         return $redirectListMarkup;
     }
-    
-    public function include_footer_selector() {
-        if (empty($this->settings)) {
-            return false;
-        }
 
-        $settings = $this->settings;
-        $redirectListMarkup = $this->get_footer_template_data($settings);
-        $redirectBackMarkup = $settings['redirection_footer_message'] ?? '';
-
-        include plugin_dir_path(__FILE__) . 'templates/footerSelector.php';
-    }
-
-    private function get_template_data($settings) {
-        $redirectListMarkup = '';
-
-        if (isset($settings['redirects']) && count($settings['redirects'])) {
-            $currentUrl = $this->get_domain_and_tld();
-            $currentShopLabel = $settings['current_shop_label'];
-            
-            foreach ($settings['redirects'] as $key => $redirect) {
-                $redirectUrl = str_replace(array('http://', 'https://'), '', $redirect['redirect_url']);
-                $before = $redirect['redirect_message_before'];
-                $after = $redirect['redirect_message_after'];
-                if ($redirectUrl === $currentUrl) {
-                    $redirectListMarkup .= '<li>' . esc_html($before) . ' <a href="' . $redirect['redirect_url'] . '" class="popup-text-goto-link popup-close-popup">' . $redirectUrl . '</a> ' . esc_html($after) . ' ' . $currentShopLabel .'</li>';
-                } else {
-                    $redirectListMarkup .= '<li>' . esc_html($before) . ' <a href="' . $redirect['redirect_url'] . '?redirect_chosen=1&redirect_to=' . $redirectUrl . '" class="popup-text-goto-link">' . $redirectUrl . '</a> ' . esc_html($after) . '</li>';
-                }
-            }
-        }
-
-        return $redirectListMarkup;
-    }
 
     public function include_redirect_popup() {
-        if (empty($this->settings)) {
-            return false;
-        }
-
-        $settings = $this->settings;
-
+        $redirectFrom = ''; // Initialize with empty string
         if (isset($_GET['ip_location_redirected_to'])) {
             $redirectFrom = sanitize_text_field($_GET['ip_location_redirected_to']);
-        } else {
-            error_log( 'Location redirect plugin: could not get $redirectFrom in template.php' );
         }
 
         // Extract values
-        $loaderImage = $settings['loader'];
-        $redirectListMarkup = $this->get_template_data($settings);
-        $redirectInfo = $settings['redirection_info'] ?? '';
+        $redirectListMarkup = $this->_generate_redirect_list_markup($this->settings, 'popup-text-goto-link', true); // Use new helper
+        $redirectInfo = $this->settings['redirection_info'] ?? '';
 
-        // Title markup
-        $redirectionTitleArray = explode('{{ shopUrl }}', $settings['redirection_title'], 2);
-        if (count($redirectionTitleArray) < 2) {
-            $redirectionTitleArray = ['', $settings['redirection_title']];
-        }
-        $redirectTitleMarkup = "{$redirectionTitleArray[0]} <span class=\"popup-title-url\">$redirectFrom</span> {$redirectionTitleArray[1]}";
+        // Title markup using helper
+        $redirectTitleMarkup = $this->_format_shop_url_text($this->settings['redirection_title'], $redirectFrom, 'popup-title-url');
 
-        // Back text markup
-        $redirectionTextArray = explode('{{ shopUrl }}', $settings['redirection_text'], 2);
-        if (count($redirectionTextArray) < 2) {
-            $redirectionTextArray = ['', $settings['redirection_text']];
-        }
-        $redirectBackMarkup = "{$redirectionTextArray[0]} <span class=\"popup-text-goto-url\">$redirectFrom</span> {$redirectionTextArray[1]}";
+        // Back text markup using helper
+        $redirectBackMarkup = $this->_format_shop_url_text($this->settings['redirection_text'], $redirectFrom, 'popup-text-goto-url');
 
         include plugin_dir_path(__FILE__) . 'templates/popupRedirected.php';
     }
 
-    private function get_choose_template_data($settings) {
-        $redirectListMarkup = '';
-
-        if (isset($settings['redirects']) && count($settings['redirects'])) {
-            $currentUrl = $this->get_domain_and_tld();
-            $currentShopLabel = $settings['current_shop_label'];
-
-            foreach ($settings['redirects'] as $key => $redirect) {
-                $redirectUrl = str_replace(array('http://', 'https://'), '', $redirect['redirect_url']);
-                $before = $redirect['redirect_message_before'];
-                $after = $redirect['redirect_message_after'];
-                if ($redirectUrl === $currentUrl) {
-                    $redirectListMarkup .= '<li>' . esc_html($before) . ' <a href="' . $redirect['redirect_url'] . '" class="popup-text-goto-link-choose popup-close-popup">' . $redirectUrl . '</a> ' . esc_html($after) . ' ' . $currentShopLabel . '</li>';
-                } else {
-                    $redirectListMarkup .= '<li>' . esc_html($before) . ' <a href="' . $redirect['redirect_url'] . '?redirect_chosen=1&redirect_to=' . $redirectUrl . '" class="popup-text-goto-link-choose">' . $redirectUrl . '</a> ' . esc_html($after) . '</li>';
-                }
-            }
-        }
-
-        return $redirectListMarkup;
-    }
-
     public function include_choose_popup() {
-        if (empty($this->settings)) {
-            return false;
-        }
-
-        $settings = $this->settings;
-
-        // Extract values
-        $loaderImage = $settings['loader'] ?? '';
-        $redirectChooseTitleMarkup = $settings['redirection_choose_title'] ?? '';
-        $redirectChooseListMarkup = $this->get_choose_template_data($settings);
-        $redirectChooseInfo = $settings['redirection_choose_info'] ?? '';
+        $redirectChooseTitleMarkup = $this->settings['redirection_choose_title'] ?? '';
+        $redirectChooseListMarkup = $this->_generate_redirect_list_markup($this->settings, 'popup-text-goto-link-choose', true); // Use new helper
+        $redirectChooseInfo = $this->settings['redirection_choose_info'] ?? '';
 
         include plugin_dir_path(__FILE__) . 'templates/popupChoose.php';
+    }
+
+    public function include_footer_selector() {
+        $redirectListMarkup = $this->_generate_redirect_list_markup($this->settings, 'popup-text-goto-link', false); // Use new helper
+        $redirectBackMarkup = $this->settings['redirection_footer_message'] ?? '';
+
+        include plugin_dir_path(__FILE__) . 'templates/footerSelector.php';
     }
 
 }
