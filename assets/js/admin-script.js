@@ -1,6 +1,9 @@
 jQuery(($) => {
 
     // --- Dynamic show/hide and required logic for redirect modes ---
+    /**
+     * Updates the visibility and required status of fields based on the selected redirect mode.
+     */
     function updateRedirectModeFields() {
         const mode = $('#default_redirect_option').val();
         // Use fieldsets for show/hide
@@ -51,7 +54,11 @@ jQuery(($) => {
     // Counter for repeater items
     let repeaterIndex = 0;
 
-    // Function to update the preview field for a repeater item
+    /**
+     * Updates the live preview field for a single repeater item.
+     *
+     * @param {jQuery} $repeaterItem The jQuery object for the repeater item div.
+     */
     const updatePreview = function($repeaterItem) {
         const before = $repeaterItem.find('.redirect-message-before-input').val() || '';
         let url = $repeaterItem.find('.redirect-url-input').val() || '';
@@ -61,9 +68,11 @@ jQuery(($) => {
         $repeaterItem.find('.redirect-preview-input').val(`${before} ${url} ${after}`.trim());
     };
 
-    // Function to add a new repeater item
+    /**
+     * Adds a new repeater item to the list.
+     */
     const addRepeaterItem = function() {
-        repeaterIndex++;        
+        repeaterIndex++;
 
         const $repeaterItem = $('#redirection-repeater .redirect-repeater:first-child').clone();
         $repeaterItem.attr('data-index', repeaterIndex);
@@ -79,7 +88,7 @@ jQuery(($) => {
         $repeaterItem.find('.ip_action_from_country').attr('id', `ip_action_from_country__${repeaterIndex}`);
         $repeaterItem.find('.ip_action_from_country-label').attr('for', `ip_action_from_country__${repeaterIndex}`);
         $repeaterItem.find('.ip_action_not_from_country').attr('id', `ip_action_not_from_country__${repeaterIndex}`);
-        $repeaterItem.find('.ip_action_not_from_country-label').attr('for', `ip_action_not_from_country__${repeaterIndex}`);        
+        $repeaterItem.find('.ip_action_not_from_country-label').attr('for', `ip_action_not_from_country__${repeaterIndex}`);
 
         // Append the new repeater item
         $('#redirection-repeater .redirect-repeaters').append($repeaterItem);
@@ -88,20 +97,30 @@ jQuery(($) => {
         attachPreviewListeners($repeaterItem);
     }
 
-    // Attach preview update listeners to a repeater item
+    /**
+     * Attaches input event listeners to update the preview field for a repeater item.
+     *
+     * @param {jQuery} $repeaterItem The jQuery object for the repeater item div.
+     */
     function attachPreviewListeners($repeaterItem) {
         $repeaterItem.find('.redirect-message-before-input, .redirect-message-after-input, .redirect-url-input').on('input', function() {
             updatePreview($repeaterItem);
         });
     }
 
-    // Function to remove a repeater item
+    /**
+     * Removes a repeater item from the list and updates the indexes.
+     *
+     * @param {jQuery} $repeaterItem The jQuery object for the repeater item div to remove.
+     */
     const removeRepeaterItem = function($repeaterItem) {
         $repeaterItem.remove();
         updateRepeaterActions();
     };
 
-    // Function to update options in the default_redirect_option select
+    /**
+     * Updates the indexes and name/id attributes of all repeater items after add/remove/sort.
+     */
     const updateRepeaterActions = function() {
         // Update all .redirect-repeater items' indexes and name attributes
         $('#redirection-repeater .redirect-repeater').each(function(i) {
@@ -143,6 +162,9 @@ jQuery(($) => {
         updatePreview($(this));
     });
 
+    /**
+     * Handles the media upload button click to open the WordPress media library.
+     */
     $('.media-upload-button').on('click', function(e) {
         e.preventDefault();
 

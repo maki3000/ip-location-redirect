@@ -1,4 +1,13 @@
 <?php
+/**
+ * Admin settings form template.
+ *
+ * This template file renders the HTML form for the plugin's admin settings page.
+ * It includes various fields for configuring redirection options, messages, and repeater items.
+ *
+ * @package IP_Location_Redirect
+ */
+
 // Exit if accessed directly
 if (!defined('ABSPATH')) {
     exit;

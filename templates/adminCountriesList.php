@@ -1,4 +1,12 @@
 <?php
+/**
+ * List of countries with ISO 3166-1 alpha-2 codes.
+ *
+ * This file contains a PHP array of countries used for the country selection
+ * in the admin redirect repeater.
+ *
+ * @package IP_Location_Redirect
+ */
 
 $countries = array(
     'AF' => 'Afghanistan',
@@ -33,7 +41,7 @@ $countries = array(
     'BV' => 'Bouvet Island',
     'BR' => 'Brazil',
     'IO' => 'British Indian Ocean Territory',
-    'BN' => 'Brunei Darussalam',
+    'BN' => 'Brunei Daralam',
     'BG' => 'Bulgaria',
     'BF' => 'Burkina Faso',
     'BI' => 'Burundi',

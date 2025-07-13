@@ -3,6 +3,15 @@
 // Usage: include this file and provide $index and $redirect (optional)
 // If $redirect is not set, default values will be used (for empty form)
 
+/**
+ * Admin redirect repeater item template.
+ *
+ * This template file renders the HTML structure for a single repeatable redirect item
+ * on the plugin's admin settings page.
+ *
+ * @package IP_Location_Redirect
+ */
+
 if (!isset($index)) {
     $index = 0;
 }
@@ -16,7 +25,7 @@ $redirect_url_value = isset($redirect['redirect_url']) ? $redirect['redirect_url
     <span class="repeater-drag-handle" title="Drag to reorder" style="cursor:move;display:inline-block;vertical-align:middle;margin-right:8px;">
         &udarr;
     </span>
-    
+
     <input type="hidden" class="repeater-index repeater-index-input" name="repeater_index[<?php echo esc_attr($index); ?>]" value="<?php echo esc_attr($index); ?>">
 
     <div class="form-repeater-block">
