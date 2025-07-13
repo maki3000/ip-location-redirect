@@ -18,6 +18,8 @@ require_once plugin_dir_path(__FILE__) . 'classes/RemoteAddress.php';
 
 /**
  * IpLocationRedirect class.
+ *
+ * Handles the core IP location detection and redirection logic.
  */
 class IpLocationRedirect {
 
@@ -85,11 +87,11 @@ class IpLocationRedirect {
             add_action('wp', [$this, 'include_choose_location_popup_content'], 100);
         } else if ($settings['default_redirect_option'] === 'use_given_redirect_options') {
             // check if redirected
-            add_action('wp', [$this, 'check_for_parameters'], 1); // TODO: test if 'wp' works here
+            add_action('template_redirect', [$this, 'check_for_parameters'], 1);
             // call redirection API if needed
             $param = sanitize_text_field($_GET['redirect_chosen'] ?? null);
             if ($param === '1') {
-                add_action('wp', [$this, 'handle_redirect_chosen'], 1);
+                add_action('template_redirect', [$this, 'handle_redirect_chosen'], 1);
             }
             if (!isset($this->redirectToCookie) && $param === '') {
                 add_action('template_redirect', [$this, 'call_ip_location_redirect'], 10);
@@ -104,15 +106,34 @@ class IpLocationRedirect {
         }
     }
 
+    /**
+     * Sets a cookie.
+     *
+     * @param string $name The cookie name.
+     * @param mixed $value The cookie value.
+     * @param int $expire The expiration time in seconds.
+     * @param string $path The cookie path.
+     */
     private function set_cookie($name, $value, $expire = 86400, $path = '/') {
         setcookie($name, $value, time() + $expire, $path);
     }
 
+    /**
+     * Gets the current domain and TLD from the server variables.
+     *
+     * @return string The current domain and TLD.
+     */
     public function get_current_url() {
         $currentUrl = (empty($_SERVER['HTTPS']) ? 'http' : 'https') . "://$_SERVER[HTTP_HOST]$_SERVER[REQUEST_URI]";
         return parse_url($currentUrl, PHP_URL_HOST);
     }
 
+    /**
+     * Adds a protocol (http or https) to a URL if it's missing.
+     *
+     * @param string|array $url The URL.
+     * @return string The URL with protocol.
+     */
     public function add_protocol($url) {
         if (empty($url)) {
             return '';
@@ -131,6 +152,27 @@ class IpLocationRedirect {
         return $protocol . $url;
     }
 
+    /**
+     * Checks if the current request should skip redirection.
+     *
+     * Skips for static assets, admin pages, and AJAX requests.
+     *
+     * @return bool True if redirection should be skipped, false otherwise.
+     */
+    public function should_skip_redirect(): bool {
+        $request_uri = $_SERVER['REQUEST_URI'] ?? '';
+
+        return (
+            preg_match('/\.(css|js|jpe?g|png|gif|svg|woff2?|ttf|eot|ico|webp|avif)(\\?.*)?$/i', $request_uri)
+            || strpos($request_uri, '/wp-admin/') === 0
+            || strpos($request_uri, '/wp-login.php') === 0
+            || (defined('DOING_AJAX') && DOING_AJAX)
+        );
+    }
+
+    /**
+     * Performs the actual HTTP redirect.
+     */
     public function redirect_to() {
         $redirectTo = $this->redirectTo;
         $redirectTo = $this->add_protocol($redirectTo);
@@ -152,6 +194,9 @@ class IpLocationRedirect {
         exit;
     }
 
+    /**
+     * Loads necessary frontend scripts and styles if not already loaded.
+     */
     private function load_scripts_if_needed() {
         if (!$this->scriptsLoaded) {
             add_action('wp_enqueue_scripts', [$this, 'ajax_scripts'], 10 );
@@ -160,25 +205,44 @@ class IpLocationRedirect {
         }
     }
 
+    /**
+     * Enqueues the main frontend JavaScript file.
+     */
     public function ajax_scripts() {
         wp_enqueue_script( 'ajax-script', plugins_url('/ip-location-redirect/assets/js/script.js'), array('jquery'), '1.0', true );
     }
 
+    /**
+     * Enqueues the URL cleanup JavaScript file.
+     */
     public function url_cleanup_script() {
         wp_enqueue_script( 'remove-url-params-script', plugins_url('/ip-location-redirect/assets/js/remove-url-params-script.js'), array('jquery'), '1.0', true );
     }
 
+    /**
+     * Enqueues the main frontend stylesheet.
+     */
     public function enqueue_stylesheet() {
         wp_enqueue_style('popup-stylesheet', plugins_url('/ip-location-redirect/assets/css/styles.css'));
     }
 
+    /**
+     * Sets a cookie and hooks the redirected popup template into the footer.
+     */
     public function show_redirection_popup() {
         $this->set_cookie(self::COOKIE_HAS_SHOWN_LOCATION, 1);
 
         add_action( 'wp_footer', [$this->templates, 'include_redirect_popup'], 100 );
     }
 
+    /**
+     * Includes the user chooses location popup content if conditions are met.
+     */
     public function include_choose_location_popup_content() {
+        if ($this->should_skip_redirect()) { // Added skip check
+            return;
+        }
+
         if (isset($this->hasShownLocationChooseCookie)) {
             return;
         }
@@ -194,14 +258,26 @@ class IpLocationRedirect {
         add_action('wp_footer', [$this->templates, 'include_choose_popup'], 100);
     }
 
+    /**
+     * Handles actions when a redirect is chosen by the user.
+     */
     public function handle_redirect_chosen() {
+         if ($this->should_skip_redirect()) { // Added skip check
+            return;
+        }
         $this->set_cookie(self::COOKIE_REDIRECTED_TO, 1);
 
         // Add action to include the URL cleanup script in the footer
         add_action('wp_enqueue_scripts', [$this, 'url_cleanup_script'], 99);
     }
 
+    /**
+     * Checks for redirect-related parameters in the URL and handles them.
+     */
     public function check_for_parameters() {
+         if ($this->should_skip_redirect()) { // Added skip check
+            return false;
+        }
         if (!isset($_GET['redirected']) || !isset($_GET['ip_location_redirected_to'])) {
             return false;
         }
@@ -217,6 +293,12 @@ class IpLocationRedirect {
         $this->show_redirection_popup();
     }
 
+    /**
+     * Finds the appropriate redirect URL based on the country code.
+     *
+     * @param string $countryCode The country code.
+     * @return string|false The redirect URL or false if no match is found.
+     */
     public function get_redirect_to_url($countryCode) {
         $settings = $this->admin->get_settings();
 
@@ -233,9 +315,16 @@ class IpLocationRedirect {
                 }
             }
         }
+        return false; // Added return false if no redirect is found
     }
 
+	/**
+	 * Calls the IP location API and handles redirection if necessary.
+	 */
 	public function call_ip_location_redirect() {
+         if ($this->should_skip_redirect()) { // Added skip check
+            return;
+        }
 		if ( !is_admin() ) {
 			$remoteAddress = new RemoteAddress();
 			$ip = $remoteAddress->getIpAddress();
