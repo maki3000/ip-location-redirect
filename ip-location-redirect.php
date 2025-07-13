@@ -267,8 +267,11 @@ class IpLocationRedirect {
         }
         $this->set_cookie(self::COOKIE_REDIRECTED_TO, 1);
 
-        // Add action to include the URL cleanup script in the footer
-        add_action('wp_enqueue_scripts', [$this, 'url_cleanup_script'], 99);
+        // Add action to include the URL cleanup script in the footer conditionally
+        $settings = $this->admin->get_settings(); // Get settings
+        if (isset($settings['remove_url_params']) && (int) $settings['remove_url_params'] === 1) { // Check the setting
+            add_action('wp_enqueue_scripts', [$this, 'url_cleanup_script'], 99);
+        }
     }
 
     /**
@@ -285,8 +288,11 @@ class IpLocationRedirect {
         $redirectedTo = isset($_GET['ip_location_redirected_to']) ? sanitize_text_field($_GET['ip_location_redirected_to']) : null;
         $this->set_cookie(self::COOKIE_REDIRECTED_TO, $redirectedTo);
 
-        // Add action to include the URL cleanup script in the footer
-        add_action('wp_enqueue_scripts', [$this, 'url_cleanup_script'], 99);
+        // Add action to include the URL cleanup script in the footer conditionally
+        $settings = $this->admin->get_settings(); // Get settings
+        if (isset($settings['remove_url_params']) && (int) $settings['remove_url_params'] === 1) {
+            add_action('wp_enqueue_scripts', [$this, 'url_cleanup_script'], 99);
+        }
 
         // show popup if user was redirected but not informed yet
         $this->load_scripts_if_needed();

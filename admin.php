@@ -90,6 +90,7 @@ class IpLocationRedirectAdmin {
         switch ($key) {
             case 'redirection_active':
             case 'show_footer_message':
+            case 'remove_url_params': // Added new key here
                 return isset($value) ? 1 : 0;
             case 'redirection_text':
             case 'redirection_info':
@@ -187,6 +188,7 @@ class IpLocationRedirectAdmin {
                 'show_footer_message',
                 'redirection_footer_message',
                 'current_shop_label',
+                'remove_url_params', // Added new key here
             );
 
             foreach ($simple_keys as $key) {

@@ -35,13 +35,21 @@ if (!defined('ABSPATH')) {
                 <option value="show_redirect_options" <?php selected($values['default_redirect_option'], 'show_redirect_options'); ?>>Show redirect options (do not automatically redirect)</option>
             </select>
         </div>
-    
+
         <div class="form-group">
             <label for="ip_api">IP API <span class="input-required">(required)</span></label>
             <select class="form-control" id="ip_api" name="ip_api" required>
                 <option value="ip-api.com" <?php selected($values['ip_api'], 'ip-api.com'); ?>>IP Geolocation API (ip-api.com)</option>
             </select>
             <small class="form-text text-muted">At the moment only ip-api.com is implemented and the value of the first item in the list will be active.</small>
+        </div>
+
+        <div class="form-group">
+            <div class="form-check">
+                <input type="checkbox" class="form-check-input" id="remove_url_params" name="remove_url_params" <?php checked($values['remove_url_params'] ?? 0, 1); ?>>
+                <label class="form-check-label" for="remove_url_params">Remove URL parameters after redirection</label>
+            </div>
+            <small class="form-text text-muted">If checked, URL parameters like 'redirected' and 'ip_location_redirected_to' will be removed from the URL after a redirect using JavaScript.</small>
         </div>
 
         <div class="form-group">
