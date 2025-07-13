@@ -210,8 +210,9 @@ class IpLocationRedirectAdmin {
                     $country = sanitize_text_field($country ?? '');
                     $ip_action = sanitize_text_field($ip_actions[$index] ?? '');
                     $redirect_url = sanitize_text_field($redirect_urls[$index] ?? '');
-                    $redirect_message_before = sanitize_text_field($redirect_message_befores[$index] ?? '');
-                    $redirect_message_after = sanitize_text_field($redirect_message_afters[$index] ?? '');
+                    // Correct sanitization for HTML editor fields
+                    $redirect_message_before = isset($redirect_message_befores[$index]) ? wp_kses_post($redirect_message_befores[$index]) : '';
+                    $redirect_message_after = isset($redirect_message_afters[$index]) ? wp_kses_post($redirect_message_afters[$index]) : '';
 
                     $item_errors = array(); // Collect errors for this item
 
@@ -293,6 +294,7 @@ class IpLocationRedirectAdmin {
     public function get_settings() {
         $values = array();
         $main_site_id = get_main_site_id();
+        // Retrieve raw saved values
         $saved_values = get_blog_option($main_site_id, 'ip_redirection_options', array());
 
         $keys = array(
@@ -310,23 +312,33 @@ class IpLocationRedirectAdmin {
         );
 
         foreach ($keys as $key) {
-            // Retrieve and sanitize each setting
-            $values[$key] = $this->_sanitize_setting($key, $saved_values[$key] ?? '');
+            // Retrieve saved value directly. It was sanitized on save.
+            $values[$key] = $saved_values[$key] ?? '';
         }
 
-        // Retrieve and sanitize repeater data
-        $values['redirects'] = array();
-        if (isset($saved_values['redirects']) && is_array($saved_values['redirects'])) {
-            foreach ($saved_values['redirects'] as $redirect) {
-                 // Basic sanitization for repeater items on retrieval
-                 $values['redirects'][] = array(
-                    'country' => sanitize_text_field($redirect['country'] ?? ''),
-                    'ip_action' => sanitize_text_field($redirect['ip_action'] ?? ''),
-                    'redirect_url' => sanitize_text_field($redirect['redirect_url'] ?? ''),
-                    'redirect_message_before' => sanitize_text_field($redirect['redirect_message_before'] ?? ''),
-                    'redirect_message_after' => sanitize_text_field($redirect['redirect_message_after'] ?? ''),
-                 );
-            }
+        // Retrieve repeater data directly (it was sanitized on save)
+        $values['redirects'] = $saved_values['redirects'] ?? array();
+
+        // Basic check to ensure redirects is an array and its items are structured correctly
+        if (!is_array($values['redirects'])) {
+            $values['redirects'] = array();
+        } else {
+             // Ensure repeater items are also retrieved without re-sanitization
+             // The sanitization happened in save_settings
+             $retrieved_redirects = array();
+             foreach ($values['redirects'] as $redirect) {
+                 // Ensure each item is an array before processing
+                 if (is_array($redirect)) {
+                     $retrieved_redirects[] = array(
+                         'country' => $redirect['country'] ?? '',
+                         'ip_action' => $redirect['ip_action'] ?? '',
+                         'redirect_url' => $redirect['redirect_url'] ?? '',
+                         'redirect_message_before' => $redirect['redirect_message_before'] ?? '',
+                         'redirect_message_after' => $redirect['redirect_message_after'] ?? '',
+                     );
+                 }
+             }
+             $values['redirects'] = $retrieved_redirects;
         }
 
 

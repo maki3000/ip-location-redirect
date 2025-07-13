@@ -37,16 +37,13 @@ class IpLocationRedirectTemplates {
      * @param string $text_setting The raw text from settings.
      * @param string $shop_url The shop URL to insert.
      * @param string $span_class The CSS class for the span wrapping the shop URL.
-     * @return string The formatted HTML string.
+     * @return string The formatted HTML string with placeholder replaced.
      */
     private function _format_shop_url_text($text_setting, $shop_url, $span_class) {
         $text = $text_setting ?? '';
-        $textArray = explode('{{ shopUrl }}', $text, 2);
-        if (count($textArray) < 2) {
-            $textArray = ['', $text];
-        }
-        // Return parts without escaping. Escaping will be done at the output point.
-        return $textArray[0] . ' <span class="' . esc_attr($span_class) . '">' . esc_html($shop_url) . '</span> ' . $textArray[1];
+        // Replace the placeholder with the shop URL wrapped in a span
+        $formatted_text = str_replace('{{ shopUrl }}', '<span class="' . esc_attr($span_class) . '">' . esc_html($shop_url) . '</span>', $text);
+        return $formatted_text;
     }
 
     /**
@@ -89,10 +86,15 @@ class IpLocationRedirectTemplates {
                     ), $linkHref);
                 }
 
+                // Replace {{ shopUrl }} in before and after messages
+                $before_formatted = str_replace('{{ shopUrl }}', '<span class="popup-text-goto-url">' . esc_html($redirectUrl) . '</span>', $before);
+                $after_formatted = str_replace('{{ shopUrl }}', '<span class="popup-text-goto-url">' . esc_html($redirectUrl) . '</span>', $after);
+
+
                 $redirectListMarkup .= '<li>'
-                                     . esc_html($before) . ' '
+                                     . wp_kses_post($before_formatted) . ' '
                                      . '<a href="' . esc_url($linkHref) . '" class="' . esc_attr($linkClassesString) . '">' . esc_html($redirectUrl) . '</a> '
-                                     . esc_html($after);
+                                     . wp_kses_post($after_formatted); // Output formatted after with wp_kses_post
 
                 // Add current shop label only if it's the current shop's link
                 if ($redirectUrl === $currentUrl) {
@@ -119,11 +121,11 @@ class IpLocationRedirectTemplates {
         $redirectListMarkup = $this->_generate_redirect_list_markup($this->settings, 'popup-text-goto-link', true); // Use new helper
         $redirectInfo = $this->settings['redirection_info'] ?? '';
 
-        // Title markup using helper
-        $redirectTitleMarkup = $this->_format_shop_url_text($this->settings['redirection_title'], $redirectFrom, 'popup-title-url');
+        // Title markup using helper and escaping output
+        $redirectTitleMarkup = wp_kses_post($this->_format_shop_url_text($this->settings['redirection_title'], $redirectFrom, 'popup-title-url'));
 
-        // Back text markup using helper
-        $redirectBackMarkup = $this->_format_shop_url_text($this->settings['redirection_text'], $redirectFrom, 'popup-text-goto-url');
+        // Back text markup using helper and escaping output
+        $redirectBackMarkup = wp_kses_post($this->_format_shop_url_text($this->settings['redirection_text'], $redirectFrom, 'popup-text-goto-url'));
 
         include plugin_dir_path(__FILE__) . 'templates/popupRedirected.php';
     }
@@ -136,6 +138,11 @@ class IpLocationRedirectTemplates {
         $redirectChooseListMarkup = $this->_generate_redirect_list_markup($this->settings, 'popup-text-goto-link-choose', true); // Use new helper
         $redirectChooseInfo = $this->settings['redirection_choose_info'] ?? '';
 
+        // Escape output with wp_kses_post
+        $redirectChooseTitleMarkup = wp_kses_post($redirectChooseTitleMarkup);
+        $redirectChooseInfo = wp_kses_post($this->_format_shop_url_text($redirectChooseInfo, '', 'popup-text-goto-url')); // Apply placeholder replacement and escape
+
+
         include plugin_dir_path(__FILE__) . 'templates/popupChoose.php';
     }
 
@@ -145,6 +152,10 @@ class IpLocationRedirectTemplates {
     public function include_footer_selector() {
         $redirectListMarkup = $this->_generate_redirect_list_markup($this->settings, 'popup-text-goto-link', false); // Use new helper
         $redirectBackMarkup = $this->settings['redirection_footer_message'] ?? '';
+
+        // Escape output with wp_kses_post
+        $redirectBackMarkup = wp_kses_post($this->_format_shop_url_text($redirectBackMarkup, '', 'popup-text-goto-url')); // Apply placeholder replacement and escape
+
 
         include plugin_dir_path(__FILE__) . 'templates/footerSelector.php';
     }
