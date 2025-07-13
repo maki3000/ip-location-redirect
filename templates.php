@@ -9,6 +9,11 @@ class IpLocationRedirectTemplates {
     private $plugin;
     private $settings;
 
+    /**
+     * Constructor.
+     *
+     * @param object $plugin_instance The main plugin instance.
+     */
     public function __construct($plugin_instance) {
         $this->plugin = $plugin_instance;
 
@@ -17,6 +22,11 @@ class IpLocationRedirectTemplates {
         }
     }
 
+    /**
+     * Gets the current domain and TLD from the server variables.
+     *
+     * @return string The current domain and TLD.
+     */
     public function get_domain_and_tld() {
         return $_SERVER['HTTP_HOST'];
     }
@@ -35,8 +45,8 @@ class IpLocationRedirectTemplates {
         if (count($textArray) < 2) {
             $textArray = ['', $text];
         }
-        // Ensure all parts are escaped for HTML output
-        return wp_kses_post($textArray[0]) . ' <span class="' . esc_attr($span_class) . '">' . esc_html($shop_url) . '</span> ' . wp_kses_post($textArray[1]);
+        // Return parts without escaping. Escaping will be done at the output point.
+        return $textArray[0] . ' <span class="' . esc_attr($span_class) . '">' . esc_html($shop_url) . '</span> ' . $textArray[1];
     }
 
     /**
@@ -96,7 +106,9 @@ class IpLocationRedirectTemplates {
         return $redirectListMarkup;
     }
 
-
+    /**
+     * Includes the redirected popup template.
+     */
     public function include_redirect_popup() {
         $redirectFrom = ''; // Initialize with empty string
         if (isset($_GET['ip_location_redirected_to'])) {
@@ -116,6 +128,9 @@ class IpLocationRedirectTemplates {
         include plugin_dir_path(__FILE__) . 'templates/popupRedirected.php';
     }
 
+    /**
+     * Includes the user chooses location popup template.
+     */
     public function include_choose_popup() {
         $redirectChooseTitleMarkup = $this->settings['redirection_choose_title'] ?? '';
         $redirectChooseListMarkup = $this->_generate_redirect_list_markup($this->settings, 'popup-text-goto-link-choose', true); // Use new helper
@@ -124,6 +139,9 @@ class IpLocationRedirectTemplates {
         include plugin_dir_path(__FILE__) . 'templates/popupChoose.php';
     }
 
+    /**
+     * Includes the footer selector template.
+     */
     public function include_footer_selector() {
         $redirectListMarkup = $this->_generate_redirect_list_markup($this->settings, 'popup-text-goto-link', false); // Use new helper
         $redirectBackMarkup = $this->settings['redirection_footer_message'] ?? '';
