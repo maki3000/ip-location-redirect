@@ -43,8 +43,6 @@ class IpLocationRedirectAdmin {
     public function register_settings() {
         // Register option group
         register_setting('ip_location_group', 'ip_location_options', array($this, 'validate_options'));
-        // Add fields to the section
-        add_settings_field('redirection_active', 'Redirection Active', array($this, 'redirection_active_field'), 'ip-location-settings', 'ip-location-section');
     }
 
     /**
@@ -73,7 +71,6 @@ class IpLocationRedirectAdmin {
                 wp_enqueue_script('jquery-ui-sortable');
                 wp_enqueue_script('admin-script', plugin_dir_url(__FILE__) . 'assets/js/admin-script.js', array('jquery'), '1.0', true);
                 wp_enqueue_script('admin-repeater-sort', plugin_dir_url(__FILE__) . 'assets/js/admin-repeater-sort.js', array('jquery', 'jquery-ui-sortable'), '1.0', true);
-                // Enqueue your CSS file
                 wp_enqueue_style('admin-styles', plugin_dir_url(__FILE__) . 'assets/css/admin-styles.css', array(), '1.0');
             }
         }
@@ -90,7 +87,7 @@ class IpLocationRedirectAdmin {
         switch ($key) {
             case 'redirection_active':
             case 'show_footer_message':
-            case 'remove_url_params': // Added new key here
+            case 'remove_url_params':
                 return isset($value) ? 1 : 0;
             case 'redirection_text':
             case 'redirection_info':
@@ -119,8 +116,19 @@ class IpLocationRedirectAdmin {
      * @param array $settings All current settings values.
      * @param array $errors Array to add validation errors to.
      */
+    /*
     private function _validate_setting($key, $value, $settings, &$errors) {
         switch ($key) {
+            case 'redirection_active':
+                if (!in_array($value, array(0, 1))) {
+                    $errors[] = 'Please choose if the plugin should be active or not.';
+                }
+                break;
+            case 'remove_url_params':
+                if (!in_array($value, array(0, 1))) {
+                    $errors[] = 'Please choose if the URL parameters should be removed or not.';
+                }
+                break;
             case 'ip_api':
                 if (empty($value)) {
                     $errors[] = 'IP API is required.';
@@ -178,6 +186,7 @@ class IpLocationRedirectAdmin {
             // Sanitize and validate simple fields
             $simple_keys = array(
                 'redirection_active',
+                'remove_url_params',
                 'ip_api',
                 'redirection_title',
                 'redirection_text',
@@ -188,27 +197,25 @@ class IpLocationRedirectAdmin {
                 'show_footer_message',
                 'redirection_footer_message',
                 'current_shop_label',
-                'remove_url_params', // Added new key here
             );
 
             foreach ($simple_keys as $key) {
-                $value = $_POST[$key] ?? ''; // Use null coalescing for robustness
+                $value = $_POST[$key] ?? '';
                 $saved_values[$key] = $this->_sanitize_setting($key, $value);
                 // Pass the potentially updated saved_values for cross-field validation
                 $this->_validate_setting($key, $saved_values[$key], $saved_values, $errors);
             }
 
             // Validate and save repeater fields
-            $redirect_actions = $_POST['country'] ?? array(); // Use null coalescing
-            $ip_actions = $_POST['ip_action'] ?? array(); // Use null coalescing
-            $redirect_urls = $_POST['redirect_url'] ?? array(); // Use null coalescing
-            $redirect_message_befores = $_POST['redirect_message_before'] ?? array(); // Use null coalescing
-            $redirect_message_afters = $_POST['redirect_message_after'] ?? array(); // Use null coalescing
+            $redirect_actions = $_POST['country'] ?? array();
+            $ip_actions = $_POST['ip_action'] ?? array();
+            $redirect_urls = $_POST['redirect_url'] ?? array();
+            $redirect_message_befores = $_POST['redirect_message_before'] ?? array();
+            $redirect_message_afters = $_POST['redirect_message_after'] ?? array();
 
             $redirect_data = array();
             if (!empty($redirect_actions)) {
                 foreach ($redirect_actions as $index => $country) {
-                    // Use null coalescing for robustness when accessing by index
                     $country = sanitize_text_field($country ?? '');
                     $ip_action = sanitize_text_field($ip_actions[$index] ?? '');
                     $redirect_url = sanitize_text_field($redirect_urls[$index] ?? '');
@@ -264,11 +271,6 @@ class IpLocationRedirectAdmin {
                 }
             }
 
-
-            if (empty($redirect_data) && $saved_values['redirection_active']) {
-                 $errors[] = 'At least one redirect item is required in the repeater when redirection is active.';
-            }
-
             $saved_values['redirects'] = $redirect_data;
 
             // Update the main option array
@@ -301,6 +303,8 @@ class IpLocationRedirectAdmin {
 
         $keys = array(
             'redirection_active',
+            'remove_url_params',
+            'default_redirect_option',
             'ip_api',
             'redirection_title',
             'redirection_text',
@@ -310,7 +314,6 @@ class IpLocationRedirectAdmin {
             'show_footer_message',
             'redirection_footer_message',
             'current_shop_label',
-            'default_redirect_option',
         );
 
         foreach ($keys as $key) {
@@ -389,9 +392,6 @@ class IpLocationRedirectAdmin {
                     <?php
                         // Output nonce, action, and option_page fields for a settings page
                         settings_fields('ip_location_group');
-
-                        // Output sections and their fields
-                        do_settings_sections('ip-location-settings');
 
                         // Call your field callback here
                         $this->field_callback();
