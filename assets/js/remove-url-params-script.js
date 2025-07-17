@@ -8,6 +8,7 @@ jQuery(() => {
         'ip_location_redirected_to',
         'redirect_chosen',
         'redirected_to',
+        'redirect_to',
     ];
     let paramsRemoved = false;
 
