@@ -43,6 +43,13 @@ class IpLocationRedirectAdmin {
     public function register_settings() {
         // Register option group
         register_setting('ip_location_group', 'ip_location_options', array($this, 'validate_options'));
+        // Add settings section
+        add_settings_section(
+            'ip_location_section',
+            'IP Location Redirect Settings',
+            null,
+            'ip-location-settings'
+        );
     }
 
     /**
@@ -88,7 +95,7 @@ class IpLocationRedirectAdmin {
             case 'redirection_active':
             case 'show_footer_message':
             case 'remove_url_params':
-                return isset($value) ? 1 : 0;
+                return isset($value) && $value !== '' ? 1 : 0;
             case 'redirection_text':
             case 'redirection_info':
             case 'redirection_choose_info':
@@ -116,7 +123,6 @@ class IpLocationRedirectAdmin {
      * @param array $settings All current settings values.
      * @param array $errors Array to add validation errors to.
      */
-    /*
     private function _validate_setting($key, $value, $settings, &$errors) {
         switch ($key) {
             case 'redirection_active':
@@ -346,7 +352,6 @@ class IpLocationRedirectAdmin {
              $values['redirects'] = $retrieved_redirects;
         }
 
-
         return $values;
     }
 
@@ -392,6 +397,11 @@ class IpLocationRedirectAdmin {
                     <?php
                         // Output nonce, action, and option_page fields for a settings page
                         settings_fields('ip_location_group');
+
+                        // Output the settings section
+                        do_settings_sections('ip-location-settings');
+                        // Output the settings fields
+                        do_settings_fields('ip-location-settings', 'default');
 
                         // Call your field callback here
                         $this->field_callback();
