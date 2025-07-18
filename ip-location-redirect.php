@@ -3,7 +3,7 @@
 Plugin Name: IP location redirect
 Plugin URI: https://maki3000.net
 Description: Redirects traffic according to IP location
-Version: 2.0.0
+Version: 3.0.1
 Author: maki3000
 Author URI: https://maki3000.net
 Requires at least: 6.0
